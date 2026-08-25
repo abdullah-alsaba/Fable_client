@@ -1,5 +1,6 @@
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import LayoutWrapper from "@/Components/LayoutWrapper/LayoutWrapper";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -13,8 +14,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata = {
-  title: "Fable",
-  description: "Best Ebook Site",
+  title: "Fable – Digital Ebook Sharing Platform",
+  description: "Connecting readers with independent writers and original digital stories.",
 };
 
 export default function RootLayout({ children }) {
@@ -23,7 +24,9 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
-      <body className="min-h-full font-inter">{children}</body>
+      <body className="min-h-full font-inter bg-[#eae2d5]">
+        <LayoutWrapper>{children}</LayoutWrapper>
+      </body>
     </html>
   );
 }

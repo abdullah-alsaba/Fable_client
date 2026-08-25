@@ -109,7 +109,7 @@ const Register = () => {
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center bg-[#eae2d5] p-4 sm:p-6 md:p-8">
-      <div className="flex w-full max-w-[900px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:min-h-[640px] md:flex-row">
+      <div className="flex w-full max-w-225 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:min-h-160 md:flex-row">
         {/* Desktop Left Hero Image Section */}
         <section className="relative hidden w-full overflow-hidden select-none md:block md:w-1/2">
           <Image
@@ -121,7 +121,7 @@ const Register = () => {
             className="object-cover object-center"
           />
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/15 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/15 to-transparent" />
 
           <div className="absolute left-8 top-7 z-10">
             <span className="font-playfair text-[20px] font-bold tracking-tight text-[#090e14]">
