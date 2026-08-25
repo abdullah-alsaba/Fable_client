@@ -64,8 +64,8 @@ const LogIn = () => {
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center bg-[#eae2d5] p-4 sm:p-6 md:p-8">
-      <div className="flex w-full max-w-225x-col overflow-hidden rounded-2xl bg-white shadow-2xl md:min-h-145 md:flex-row">
-        {/* Left Image Section */}
+      <div className="flex w-full max-w-[900px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:min-h-[580px] md:flex-row">
+        {/* Desktop Left Image Section */}
         <section className="relative hidden w-full overflow-hidden select-none md:block md:w-1/2">
           <Image
             src={logInImg}
@@ -76,7 +76,7 @@ const LogIn = () => {
             className="object-cover object-center"
           />
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/15 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/15 to-transparent" />
 
           <div className="absolute left-8 top-7 z-10">
             <span className="font-playfair text-[20px] font-bold tracking-tight text-[#090e14]">
@@ -85,11 +85,18 @@ const LogIn = () => {
           </div>
         </section>
 
-        {/* Right Form Section */}
-        <section className="flex w-full flex-col justify-center bg-white px-8 py-10 sm:px-12 md:w-1/2 md:px-10 lg:px-12">
+        {/* Right Form Section (Mobile & Desktop) */}
+        <section className="flex w-full flex-col justify-center bg-white px-6 py-8 sm:px-10 sm:py-10 md:w-1/2 md:px-10 lg:px-12">
           <div className="mx-auto w-full max-w-[320px]">
+            {/* Mobile Logo */}
+            <div className="mb-4 text-center md:hidden">
+              <span className="font-playfair text-2xl font-bold tracking-tight text-[#090e14]">
+                Fable
+              </span>
+            </div>
+
             <div className="mb-6">
-              <h1 className="font-playfair text-[30px] font-bold leading-tight tracking-tight text-[#090e14] sm:text-[32px]">
+              <h1 className="font-playfair text-2xl font-bold leading-tight tracking-tight text-[#090e14] sm:text-[30px] md:text-[32px]">
                 Welcome Back
               </h1>
 
