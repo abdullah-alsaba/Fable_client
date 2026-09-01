@@ -4,7 +4,17 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import logInImg from "@/assets/logInImage.png";
-import { Button, FieldError, Form, Input, Label, TextField } from "@heroui/react";
+import {
+  Button,
+  FieldError,
+  Form,
+  Input,
+  Label,
+  TextField,
+} from "@heroui/react";
+import { authClient } from "@/lib/auth-client";
+import { myToast } from "@/utils/customToast";
+import { useRouter } from "next/navigation";
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" className="shrink-0">
@@ -60,12 +70,36 @@ const EyeOffIcon = () => (
 );
 
 const LogIn = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+
+  const handelSingInButton = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    const { data, error } = await authClient.signIn.email({
+      email,
+      password,
+    });
+
+    if (error) {
+      myToast.error("Check Your Info and Try Again");
+      return;
+    }
+
+    if (data) {
+      myToast.success("Log In Successfully");
+      router.push("/");
+    }
+  };
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center bg-[#eae2d5] p-4 sm:p-6 md:p-8">
       <div className="flex w-full max-w-225 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:min-h-145 md:flex-row">
-        {/* Desktop Left Image Section */}
         <section className="relative hidden w-full overflow-hidden select-none md:block md:w-1/2">
           <Image
             src={logInImg}
@@ -85,10 +119,8 @@ const LogIn = () => {
           </div>
         </section>
 
-        {/* Right Form Section (Mobile & Desktop) */}
         <section className="flex w-full flex-col justify-center bg-white px-6 py-8 sm:px-10 sm:py-10 md:w-1/2 md:px-10 lg:px-12">
           <div className="mx-auto w-full max-w-[320px]">
-            {/* Mobile Logo */}
             <div className="mb-4 text-center md:hidden">
               <span className="font-playfair text-2xl font-bold tracking-tight text-[#090e14]">
                 Fable
@@ -105,7 +137,10 @@ const LogIn = () => {
               </p>
             </div>
 
-            <Form className="flex w-full flex-col gap-4">
+            <Form
+              onSubmit={handelSingInButton}
+              className="flex w-full flex-col gap-4"
+            >
               <TextField
                 isRequired
                 name="email"
@@ -166,7 +201,9 @@ const LogIn = () => {
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#777777] hover:text-[#111111] transition-colors cursor-pointer"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                   </button>
