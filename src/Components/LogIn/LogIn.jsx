@@ -15,6 +15,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { myToast } from "@/utils/customToast";
 import { useRouter } from "next/navigation";
+import { handleGoogleAuth } from "@/lib/auth-action";
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" className="shrink-0">
@@ -97,6 +98,14 @@ const LogIn = () => {
     }
   };
 
+
+   const handelGoogle = async () => {
+      const { error } = await handleGoogleAuth();
+   
+      if (error) {
+        myToast.error("Google login failed");
+      }
+    };
   return (
     <main className="flex min-h-screen w-full items-center justify-center bg-[#eae2d5] p-4 sm:p-6 md:p-8">
       <div className="flex w-full max-w-225 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:min-h-145 md:flex-row">
@@ -231,6 +240,7 @@ const LogIn = () => {
             </div>
 
             <button
+              onClick={handelGoogle}
               type="button"
               className="flex h-10 w-full cursor-pointer items-center justify-center gap-2.5 rounded-lg border border-[#dedede] bg-white text-xs font-medium text-[#222222] shadow-2xs transition-all hover:bg-[#fcfbf9] active:scale-[0.99]"
             >

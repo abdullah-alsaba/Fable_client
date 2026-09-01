@@ -16,6 +16,7 @@ import registerImg from "@/assets/registerImage.png";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { myToast } from "@/utils/customToast";
+import { handleGoogleAuth } from "@/lib/auth-action";
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" className="shrink-0">
@@ -140,6 +141,14 @@ const Register = () => {
     }
 
   };
+
+ const handelGoogle = async () => {
+   const { error } = await handleGoogleAuth();
+
+   if (error) {
+     myToast.error("Google registration failed");
+   }
+ };
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -355,6 +364,7 @@ const Register = () => {
             </div>
 
             <button
+              onClick={handelGoogle}
               type="button"
               className="flex h-9.5 w-full cursor-pointer items-center justify-center gap-2.5 rounded-lg border border-[#dedede] bg-white text-xs font-medium text-[#222222] shadow-2xs transition-all hover:bg-[#fcfbf9] active:scale-[0.99]"
             >
