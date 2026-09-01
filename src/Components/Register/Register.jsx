@@ -4,8 +4,18 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { RoleTab } from "./RoleTab/RoleTab";
-import { Button, FieldError, Form, Input, Label, TextField } from "@heroui/react";
+import {
+  Button,
+  FieldError,
+  Form,
+  Input,
+  Label,
+  TextField,
+} from "@heroui/react";
 import registerImg from "@/assets/registerImage.png";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { myToast } from "@/utils/customToast";
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" className="shrink-0">
@@ -96,6 +106,40 @@ const CheckCircleIcon = ({ met }) => (
 );
 
 const Register = () => {
+  const router = useRouter()
+  const handelRegisterButton = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+
+    const name = formData.get("name");
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    const newUser = {
+      name,
+      email,
+      password,
+      role,
+    };
+
+    const { data, error } = await authClient.signUp.email({
+      name: name, 
+      email: email, 
+      password: password, 
+      role: role,   
+    });
+
+    if (data) {
+      myToast.success("Registration Successfully");
+      router.push('/')
+
+    }
+    if (error) {
+      myToast.error("Check Your Info and Try Again")
+    }
+
+  };
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -104,13 +148,15 @@ const Register = () => {
   const requirements = [
     { label: "At least 8 characters", met: password.length >= 8 },
     { label: "One uppercase letter", met: /[A-Z]/.test(password) },
-    { label: "One number or symbol", met: /[0-9!@#$%^&*(),.?":{}|<>]/.test(password) },
+    {
+      label: "One number or symbol",
+      met: /[0-9!@#$%^&*(),.?":{}|<>]/.test(password),
+    },
   ];
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center bg-[#eae2d5] p-4 sm:p-6 md:p-8">
       <div className="flex w-full max-w-225 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:min-h-160 md:flex-row">
-        {/* Desktop Left Hero Image Section */}
         <section className="relative hidden w-full overflow-hidden select-none md:block md:w-1/2">
           <Image
             src={registerImg}
@@ -130,10 +176,8 @@ const Register = () => {
           </div>
         </section>
 
-        {/* Right Form Section (Mobile & Desktop) */}
         <section className="flex w-full flex-col justify-center bg-white px-6 py-8 sm:px-10 sm:py-10 md:w-1/2 md:px-10 lg:px-12">
           <div className="mx-auto w-full max-w-[320px]">
-            {/* Mobile Logo */}
             <div className="mb-4 text-center md:hidden">
               <span className="font-playfair text-2xl font-bold tracking-tight text-[#090e14]">
                 Fable
@@ -155,7 +199,10 @@ const Register = () => {
               <RoleTab selectedRole={role} onChange={setRole} />
             </div>
 
-            <Form className="flex w-full flex-col gap-3.5">
+            <Form
+              onSubmit={handelRegisterButton}
+              className="flex w-full flex-col gap-3.5"
+            >
               <TextField
                 isRequired
                 name="name"
@@ -232,7 +279,9 @@ const Register = () => {
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#777777] hover:text-[#111111] transition-colors cursor-pointer"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                   </button>
@@ -241,7 +290,6 @@ const Register = () => {
                 <FieldError className="mt-1 text-[11px] font-medium text-red-500" />
               </TextField>
 
-              {/* Password Requirements Box */}
               <div className="rounded-lg border border-[#e5e5e0] bg-[#fafaf8] p-3">
                 <span className="block text-[9px] font-bold uppercase tracking-wider text-[#666666]">
                   Password Requirements
@@ -251,7 +299,9 @@ const Register = () => {
                   {requirements.map((req) => (
                     <li key={req.label} className="flex items-center gap-2">
                       <CheckCircleIcon met={req.met} />
-                      <span className={`text-[11px] transition-colors ${req.met ? "font-medium text-[#16a34a]" : "text-[#555555]"}`}>
+                      <span
+                        className={`text-[11px] transition-colors ${req.met ? "font-medium text-[#16a34a]" : "text-[#555555]"}`}
+                      >
                         {req.label}
                       </span>
                     </li>
@@ -259,7 +309,6 @@ const Register = () => {
                 </ul>
               </div>
 
-              {/* Terms Checkbox */}
               <label className="flex cursor-pointer items-start gap-2.5 pt-0.5 select-none">
                 <input
                   type="checkbox"
