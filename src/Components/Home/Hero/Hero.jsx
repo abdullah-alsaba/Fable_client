@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import heroImg from "@/assets/heroImg.png";
+import { EmblaCarousel } from "@/Components/EmblaCarousel/EmblaCarousel";
 
 const Hero = () => {
   return (
@@ -23,7 +22,7 @@ const Hero = () => {
             <Link href="/browse-ebooks" className="w-full sm:w-auto">
               <button
                 type="button"
-                className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-[#855310] px-6 text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#6e440c] active:scale-[0.99] sm:w-auto"
+                className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-[#050d16] px-6 text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#182230] active:scale-[0.99] sm:w-auto"
               >
                 Browse Ebooks
               </button>
@@ -40,15 +39,8 @@ const Hero = () => {
           </div>
         </div>
 
-        <div className="relative aspect-4/3 w-full select-none overflow-hidden rounded-2xl border border-[#e2d9cb] shadow-lg">
-          <Image
-            src={heroImg}
-            alt="Discover & Read Original Ebooks"
-            fill
-            priority
-            sizes="(max-width: 1024px) 100vw, 600px"
-            className="object-cover object-center"
-          />
+        <div className="w-full">
+          <EmblaCarousel />
         </div>
       </div>
     </section>
