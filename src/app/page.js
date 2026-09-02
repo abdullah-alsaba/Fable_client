@@ -1,4 +1,5 @@
 import FeaturedBooks from "@/Components/Home/FeaturedBooks/FeaturedBooks";
+import Genre from "@/Components/Home/Genre/Genre";
 import Hero from "@/Components/Home/Hero/Hero";
 import TopWriters from "@/Components/Home/TopWriters/TopWriters";
 
@@ -8,10 +9,8 @@ export default function Home() {
       <div className="mx-auto max-w-7xl">
         <Hero />
         <FeaturedBooks />
-        <div className="w-full">
-
-        <TopWriters/>
-        </div>
+        <TopWriters />
+        <Genre/>
       </div>
     </main>
   );
