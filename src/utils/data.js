@@ -4,9 +4,14 @@ export const getDataFeaturedBooks = async () => {
   return data;
 };
 
-
 export const getTopWritersData = async () => {
-    const res = await fetch(`${process.env.NEXT_SERVER_URI}/authors/top`);
-    const data = await res.json()
-    return data 
-}
+  const res = await fetch(`${process.env.NEXT_SERVER_URI}/authors/top`);
+  const data = await res.json();
+  return data;
+};
+
+export const getDataAllEBooks = async () => {
+  const res = await fetch(`${process.env.NEXT_SERVER_URI}/browse-ebooks`);
+  const data = await res.json();
+  return data;
+};
