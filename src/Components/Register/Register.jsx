@@ -107,7 +107,14 @@ const CheckCircleIcon = ({ met }) => (
 );
 
 const Register = () => {
-  const router = useRouter()
+  const router = useRouter();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [role, setRole] = useState("reader");
+
   const handelRegisterButton = async (e) => {
     e.preventDefault();
 
@@ -115,44 +122,37 @@ const Register = () => {
 
     const name = formData.get("name");
     const email = formData.get("email");
-    const password = formData.get("password");
+    const pass = formData.get("password");
+    const confirmPass = formData.get("confirmPassword");
 
-    const newUser = {
-      name,
-      email,
-      password,
-      role,
-    };
+    if (pass !== confirmPass) {
+      myToast.error("Passwords do not match");
+      return;
+    }
 
     const { data, error } = await authClient.signUp.email({
-      name: name, 
-      email: email, 
-      password: password, 
-      role: role,   
+      name: name,
+      email: email,
+      password: pass,
+      role: role,
     });
 
     if (data) {
       myToast.success("Registration Successfully");
-      router.push('/')
-
+      router.push("/");
     }
     if (error) {
-      myToast.error("Check Your Info and Try Again")
+      myToast.error("Check Your Info and Try Again");
     }
-
   };
 
- const handelGoogle = async () => {
-   const { error } = await handleGoogleAuth();
+  const handelGoogle = async () => {
+    const { error } = await handleGoogleAuth();
 
-   if (error) {
-     myToast.error("Google registration failed");
-   }
- };
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [role, setRole] = useState("reader");
+    if (error) {
+      myToast.error("Google registration failed");
+    }
+  };
 
   const requirements = [
     { label: "At least 8 characters", met: password.length >= 8 },
@@ -293,6 +293,46 @@ const Register = () => {
                     }
                   >
                     {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+
+                <FieldError className="mt-1 text-[11px] font-medium text-red-500" />
+              </TextField>
+
+              <TextField
+                isRequired
+                minLength={8}
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                validate={(value) => {
+                  if (!value) return "Confirm Password is required";
+                  if (value !== password) {
+                    return "Passwords do not match";
+                  }
+                  return null;
+                }}
+              >
+                <Label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-[#171717]">
+                  Confirm Password <span className="text-red-500">*</span>
+                </Label>
+
+                <div className="relative">
+                  <Input
+                    placeholder="Confirm your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="h-9.5 w-full rounded-lg bg-[#e8e7e5] pl-3.5 pr-10 text-xs text-[#090e14] placeholder:text-[#999999] focus:bg-white focus:outline-none transition-all"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#777777] hover:text-[#111111] transition-colors cursor-pointer"
+                    aria-label={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
                   </button>
                 </div>
 
