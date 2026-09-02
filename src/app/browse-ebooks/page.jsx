@@ -5,14 +5,22 @@ import React, { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-async function BrowseBooksServer() {
-  let eBooks = [];
+async function BrowseBooksServer({ searchParams }) {
+  const resolvedParams = await searchParams;
+  const page = parseInt(resolvedParams?.page) || 1;
+  const limit = parseInt(resolvedParams?.limit) || 8;
+  const search = resolvedParams?.search || resolvedParams?.writer || "";
+  const sortBy = resolvedParams?.sortBy || "newest";
+
+  let serverData = { ebooks: [], totalBooks: 0, totalPages: 1, currentPage: page, limit };
   let error = false;
 
   try {
-    const data = await getDataAllEBooks();
-    if (Array.isArray(data)) {
-      eBooks = data;
+    const data = await getDataAllEBooks({ page, limit, search, sortBy });
+    if (data && Array.isArray(data.ebooks)) {
+      serverData = data;
+    } else if (Array.isArray(data)) {
+      serverData = { ebooks: data, totalBooks: data.length, totalPages: 1, currentPage: 1, limit };
     } else {
       error = true;
     }
@@ -21,13 +29,19 @@ async function BrowseBooksServer() {
     error = true;
   }
 
-  return <BrowseBooksClient initialEBooks={eBooks} initialError={error} />;
+  return (
+    <BrowseBooksClient
+      serverData={serverData}
+      initialError={error}
+      currentParams={{ page, limit, search, sortBy }}
+    />
+  );
 }
 
-export default function BrowseBooksPage() {
+export default function BrowseBooksPage(props) {
   return (
     <Suspense fallback={<BrowseEbooksLoading />}>
-      <BrowseBooksServer />
+      <BrowseBooksServer {...props} />
     </Suspense>
   );
 }

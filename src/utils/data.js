@@ -17,8 +17,15 @@ export const getTopWritersData = async () => {
   return data;
 };
 
-export const getDataAllEBooks = async () => {
-  const res = await fetch(`${SERVER_URI}/browse-ebooks`, { cache: "no-store" });
+export const getDataAllEBooks = async (params = {}) => {
+  const query = new URLSearchParams();
+  if (params.page) query.append("page", params.page);
+  if (params.limit) query.append("limit", params.limit);
+  if (params.search) query.append("search", params.search);
+  if (params.sortBy) query.append("sortBy", params.sortBy);
+
+  const queryString = query.toString() ? `?${query.toString()}` : "";
+  const res = await fetch(`${SERVER_URI}/browse-ebooks${queryString}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch ebooks");
   const data = await res.json();
   return data;
