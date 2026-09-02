@@ -1,30 +1,33 @@
-import BookCard from '@/Components/BookCard/BookCard';
-import BrowseEbooksSidebar from '@/Components/BrowseEbooksSidebar/BrowseEbooksSidebar';
-import { getDataAllEBooks } from '@/utils/data';
-import React from 'react';
+import { getDataAllEBooks } from "@/utils/data";
+import BrowseBooksClient from "./BrowseBooksClient";
+import BrowseEbooksLoading from "./loading";
+import React, { Suspense } from "react";
 
-const BrowseBooks =async () => {
-    const eBooks = await getDataAllEBooks()
-    return (
-      <div>
-        <div>
-          <h1>Explore Ebooks</h1>
-          <p>
-            Discover your next compelling read. Our curated collection spans
-            genres, carefully selected for the discerning reader.
-          </p>
-            <input type="text" className='bg-white' />
-            </div>
-            <div className='flex'>
-                <BrowseEbooksSidebar />
-                <div className='grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6'>
-                    {eBooks.map((book) => <BookCard key={book._id} book={book } />)}
-                </div>
-                
-            </div>
-        </div>
-        
-    );
-};
+export const dynamic = "force-dynamic";
 
-export default BrowseBooks;
+async function BrowseBooksServer() {
+  let eBooks = [];
+  let error = false;
+
+  try {
+    const data = await getDataAllEBooks();
+    if (Array.isArray(data)) {
+      eBooks = data;
+    } else {
+      error = true;
+    }
+  } catch (err) {
+    console.error("Error fetching ebooks in Server Component:", err);
+    error = true;
+  }
+
+  return <BrowseBooksClient initialEBooks={eBooks} initialError={error} />;
+}
+
+export default function BrowseBooksPage() {
+  return (
+    <Suspense fallback={<BrowseEbooksLoading />}>
+      <BrowseBooksServer />
+    </Suspense>
+  );
+}
