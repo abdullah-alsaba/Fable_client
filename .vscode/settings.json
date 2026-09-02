@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["Clerkenwell"]
+  "cSpell.words": ["Clerkenwell"],
+  "postman.settings.dotenv-detection-notification-visibility": false
 }
