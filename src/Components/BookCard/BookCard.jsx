@@ -9,7 +9,7 @@ const BookCard = ({ book }) => {
     <Card
       radius="none"
       shadow="none"
-      className="w-full h-auto rounded-[9px] border border-[#e5e2dc] bg-white p-3.25"
+      className="w-full h-auto rounded-[9px] border border-[#e5e2dc] bg-[white] p-3.25"
     >
       <div className="relative h-48.5 w-full shrink-0 overflow-hidden rounded-sm bg-[#f5f4f0]">
         <Image
