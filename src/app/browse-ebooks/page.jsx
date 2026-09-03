@@ -10,13 +10,17 @@ async function BrowseBooksServer({ searchParams }) {
   const page = parseInt(resolvedParams?.page) || 1;
   const limit = parseInt(resolvedParams?.limit) || 8;
   const search = resolvedParams?.search || resolvedParams?.writer || "";
+  const genre = resolvedParams?.genre || "";
+  const minPrice = resolvedParams?.minPrice || "";
+  const maxPrice = resolvedParams?.maxPrice || "";
+  const availability = resolvedParams?.availability || "all";
   const sortBy = resolvedParams?.sortBy || "newest";
 
   let serverData = { ebooks: [], totalBooks: 0, totalPages: 1, currentPage: page, limit };
   let error = false;
 
   try {
-    const data = await getDataAllEBooks({ page, limit, search, sortBy });
+    const data = await getDataAllEBooks({ page, limit, search, genre, minPrice, maxPrice, availability, sortBy });
     if (data && Array.isArray(data.ebooks)) {
       serverData = data;
     } else if (Array.isArray(data)) {
@@ -33,7 +37,7 @@ async function BrowseBooksServer({ searchParams }) {
     <BrowseBooksClient
       serverData={serverData}
       initialError={error}
-      currentParams={{ page, limit, search, sortBy }}
+      currentParams={{ page, limit, search, genre, minPrice, maxPrice, availability, sortBy }}
     />
   );
 }

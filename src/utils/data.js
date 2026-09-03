@@ -22,6 +22,10 @@ export const getDataAllEBooks = async (params = {}) => {
   if (params.page) query.append("page", params.page);
   if (params.limit) query.append("limit", params.limit);
   if (params.search) query.append("search", params.search);
+  if (params.genre) query.append("genre", params.genre);
+  if (params.minPrice) query.append("minPrice", params.minPrice);
+  if (params.maxPrice) query.append("maxPrice", params.maxPrice);
+  if (params.availability) query.append("availability", params.availability);
   if (params.sortBy) query.append("sortBy", params.sortBy);
 
   const queryString = query.toString() ? `?${query.toString()}` : "";
