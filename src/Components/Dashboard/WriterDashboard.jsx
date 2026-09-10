@@ -32,6 +32,8 @@ export default function WriterDashboard() {
   const [writerEbooks, setWriterEbooks] = useState([]);
   const [salesHistory, setSalesHistory] = useState([]);
   const [writerBookmarks, setWriterBookmarks] = useState([]);
+  const [isVerified, setIsVerified] = useState(false);
+  const [feeLoading, setFeeLoading] = useState(false);
 
   const [addForm, setAddForm] = useState({
     title: "",
@@ -40,6 +42,7 @@ export default function WriterDashboard() {
     genre: "Fiction",
     cover: "",
   });
+  const [coverFile, setCoverFile] = useState(null);
 
   const [editingEbook, setEditingEbook] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -69,6 +72,7 @@ export default function WriterDashboard() {
       fetchWriterEbooksFromDB(session.user.email);
       fetchWriterSalesFromDB(session.user.email);
       fetchWriterBookmarksFromDB(session.user.email);
+      fetchWriterVerification(session.user.email);
     }
   }, [session, isPending, router]);
 
@@ -104,7 +108,9 @@ export default function WriterDashboard() {
       const res = await fetch(`${serverUri}/api/purchases?writerEmail=${encodeURIComponent(email)}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.purchases)) {
-        const formatted = data.purchases.map((s) => ({
+        const formatted = data.purchases
+          .filter((s) => (s.type || "purchase") === "purchase")
+          .map((s) => ({
           id: s.transactionId || s._id,
           ebookTitle: s.ebookTitle || s.ebookName,
           buyerName: s.userName || s.userEmail,
@@ -140,6 +146,48 @@ export default function WriterDashboard() {
       }
     } catch (err) {
       setWriterBookmarks([]);
+    }
+  };
+
+  const fetchWriterVerification = async (email) => {
+    try {
+      const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
+      const res = await fetch(
+        `${serverUri}/api/writer/verification?email=${encodeURIComponent(email)}`
+      );
+      const data = await res.json();
+      setIsVerified(Boolean(data.success && data.verified));
+    } catch {
+      setIsVerified(false);
+    }
+  };
+
+  const handlePayVerificationFee = async () => {
+    if (!session?.user?.email) {
+      myToast.error("Please log in first.");
+      return;
+    }
+    setFeeLoading(true);
+    try {
+      const res = await fetch("/api/checkout_sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "publishing fee",
+          userEmail: session.user.email,
+          userName: session.user.name || "",
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        myToast.error(data.error || "Failed to start verification payment.");
+      }
+    } catch {
+      myToast.error("Failed to start verification payment.");
+    } finally {
+      setFeeLoading(false);
     }
   };
 
@@ -221,18 +269,51 @@ export default function WriterDashboard() {
 
   const handleAddEbookSubmit = async (e) => {
     e.preventDefault();
-    const newBook = {
-      title: addForm.title,
-      description: addForm.description,
-      price: parseFloat(addForm.price) || 0,
-      genre: addForm.genre,
-      cover: addForm.cover || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=600&q=80",
-      writerEmail: session?.user?.email,
-      writerName: session?.user?.name || "Fable Writer",
-      status: "published",
-    };
+
+    if (!isVerified) {
+      myToast.error("Please complete the one-time writer verification payment first.");
+      return;
+    }
+
+    if (!coverFile) {
+      myToast.error("Please select a book cover image before submitting.");
+      return;
+    }
+
+    setIsUploading(true);
 
     try {
+      const formData = new FormData();
+      formData.append("image", coverFile);
+
+      const uploadResponse = await fetch(
+        `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const uploadData = await uploadResponse.json();
+      const imageUrl = uploadData?.data?.url;
+
+      if (!imageUrl) {
+        myToast.error("Image upload failed. Please try again.");
+        return;
+      }
+
+      const newBook = {
+        title: addForm.title,
+        description: addForm.description,
+        price: parseFloat(addForm.price) || 0,
+        genre: addForm.genre,
+        cover: imageUrl,
+        coverImage: imageUrl,
+        writerEmail: session?.user?.email,
+        writerName: session?.user?.name || "Fable Writer",
+        status: "published",
+      };
+
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
       const res = await fetch(`${serverUri}/api/ebooks`, {
         method: "POST",
@@ -240,18 +321,22 @@ export default function WriterDashboard() {
         body: JSON.stringify(newBook),
       });
       const data = await res.json();
-      if (data.success) {
-        newBook.id = data.insertedId;
-      } else {
-        newBook.id = "wb-" + Date.now();
+
+      if (!data.success) {
+        myToast.error("Failed to add book. Please try again.");
+        return;
       }
-    } catch (err) {
-      newBook.id = "wb-" + Date.now();
-    } finally {
+
+      newBook.id = data.insertedId;
       setWriterEbooks((prev) => [newBook, ...prev]);
       setAddForm({ title: "", description: "", price: "", genre: "Fiction", cover: "" });
-      myToast.success("New Ebook published to database!");
+      setCoverFile(null);
+      myToast.success("Book added successfully!");
       setActiveTab("manage");
+    } catch (err) {
+      myToast.error("Image upload failed. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -277,6 +362,7 @@ export default function WriterDashboard() {
       price: parseFloat(editForm.price) || 0,
       genre: editForm.genre,
       cover: editForm.cover,
+      coverImage: editForm.cover,
     };
 
     try {
@@ -319,7 +405,7 @@ export default function WriterDashboard() {
   );
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#eae2d5]">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] bg-[#eae2d5] px-4 sm:px-6 lg:px-10 py-4 lg:py-6 gap-5 lg:gap-6">
       <DashboardSidebar
         user={session?.user}
         role="writer"
@@ -332,7 +418,7 @@ export default function WriterDashboard() {
         }}
       />
 
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl">
+      <main className="flex-1 min-w-0 max-w-6xl">
         <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="rounded-2xl border border-[#e2d9cb] bg-white p-5 shadow-xs flex items-center justify-between">
             <div>
@@ -537,20 +623,39 @@ export default function WriterDashboard() {
               </p>
             </div>
 
-            <form onSubmit={handleAddEbookSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold text-[#090e14] mb-1">
-                  Ebook Title <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Shadows of the Obsidian Spire"
-                  value={addForm.title}
-                  onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
-                  required
-                  className="w-full rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-3.5 py-2.5 text-xs text-[#090e14] placeholder:text-[#999999] focus:bg-[#ffffff] focus:outline-none"
-                />
+            {!isVerified ? (
+              <div className="py-10 text-center">
+                <DollarSign size={40} className="mx-auto text-[#cccccc] mb-3" />
+                <p className="font-playfair text-lg font-bold text-[#090e14]">
+                  Writer Verification Required
+                </p>
+                <p className="text-xs text-[#888888] mt-2 max-w-md mx-auto">
+                  Complete a one-time $15 verification payment to publish and manage ebooks on Fable.
+                </p>
+                <button
+                  type="button"
+                  onClick={handlePayVerificationFee}
+                  disabled={feeLoading}
+                  className="mt-5 inline-flex items-center justify-center gap-2 rounded-lg bg-[#050d16] px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-xs hover:bg-[#182230] disabled:opacity-60"
+                >
+                  {feeLoading ? "Redirecting..." : "Pay Verification Fee"}
+                </button>
               </div>
+            ) : (
+              <form onSubmit={handleAddEbookSubmit} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold text-[#090e14] mb-1">
+                    Ebook Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Shadows of the Obsidian Spire"
+                    value={addForm.title}
+                    onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                    required
+                    className="w-full rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-3.5 py-2.5 text-xs text-[#090e14] placeholder:text-[#999999] focus:bg-[#ffffff] focus:outline-none"
+                  />
+                </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -586,6 +691,8 @@ export default function WriterDashboard() {
                     <option value="Romance">Romance</option>
                     <option value="Technology">Technology</option>
                     <option value="History">History</option>
+                    <option value="Mystery">Mystery</option>
+                    <option value="Horror">Horror</option>
                   </select>
                 </div>
               </div>
@@ -606,30 +713,34 @@ export default function WriterDashboard() {
 
               <div>
                 <label className="block font-bold text-[#090e14] mb-1">
-                  Cover Image (ImgBB Upload)
+                  Book Cover Image <span className="text-red-500">*</span>
                 </label>
-                <div className="flex flex-col sm:flex-row gap-3 items-center">
-                  <label className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-dashed border-[#a2753b] bg-[#fcf8f2] px-4 py-3 text-xs font-semibold text-[#855210] hover:bg-[#f6ebd9] transition-colors cursor-pointer w-full">
-                    <Upload size={16} />
-                    <span>{isUploading ? "Uploading to ImgBB..." : "Upload Image to ImgBB"}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImgBBUpload(e.target.files[0], false)}
-                      className="hidden"
-                    />
-                  </label>
-
-                  <span className="text-xs text-[#777777]">OR URL:</span>
-
-                  <input
-                    type="url"
-                    placeholder="https://i.ibb.co/..."
-                    value={addForm.cover}
-                    onChange={(e) => setAddForm({ ...addForm, cover: e.target.value })}
-                    className="flex-1 rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-3.5 py-2.5 text-xs text-[#090e14] focus:bg-[#ffffff] focus:outline-none w-full"
-                  />
-                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  disabled={isUploading}
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) {
+                      setCoverFile(null);
+                      setAddForm({ ...addForm, cover: "" });
+                      return;
+                    }
+                    setCoverFile(file);
+                    setAddForm({ ...addForm, cover: URL.createObjectURL(file) });
+                  }}
+                  className="w-full rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-3.5 py-2.5 text-xs text-[#090e14] file:mr-3 file:rounded-md file:border-0 file:bg-[#050d16] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white cursor-pointer"
+                />
+                {isUploading && (
+                  <p className="mt-2 text-xs font-semibold text-[#855210]">
+                    Uploading cover image...
+                  </p>
+                )}
+                {coverFile && !isUploading && (
+                  <p className="mt-2 text-[11px] text-[#666666]">
+                    Selected: {coverFile.name}
+                  </p>
+                )}
 
                 {addForm.cover && (
                   <div className="mt-3 flex items-center gap-3 rounded-lg border border-[#e2d9cb] p-2 bg-[#fafaf8]">
@@ -641,7 +752,7 @@ export default function WriterDashboard() {
                     <div>
                       <p className="font-bold text-[#090e14]">Cover Image Preview</p>
                       <p className="text-[11px] text-emerald-600 flex items-center gap-1">
-                        <CheckCircle size={12} /> Ready for publish
+                        <CheckCircle size={12} /> Image selected
                       </p>
                     </div>
                   </div>
@@ -652,6 +763,7 @@ export default function WriterDashboard() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("manage")}
+                  disabled={isUploading}
                   className="rounded-lg border border-[#e2d9cb] px-5 py-2.5 text-xs font-semibold text-[#555555] hover:bg-[#f6f4ee]"
                 >
                   Cancel
@@ -659,12 +771,14 @@ export default function WriterDashboard() {
 
                 <button
                   type="submit"
-                  className="rounded-lg bg-[#050d16] px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-xs hover:bg-[#182230] transition-all cursor-pointer"
+                  disabled={isUploading}
+                  className="rounded-lg bg-[#050d16] px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-xs hover:bg-[#182230] transition-all cursor-pointer disabled:opacity-60"
                 >
-                  Publish Ebook
+                  {isUploading ? "Uploading..." : "Publish Ebook"}
                 </button>
               </div>
             </form>
+            )}
           </div>
         )}
 
@@ -726,6 +840,8 @@ export default function WriterDashboard() {
                     <option value="Romance">Romance</option>
                     <option value="Technology">Technology</option>
                     <option value="History">History</option>
+                    <option value="Mystery">Mystery</option>
+                    <option value="Horror">Horror</option>
                   </select>
                 </div>
               </div>

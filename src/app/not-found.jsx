@@ -9,7 +9,6 @@ const NotFoundPage = () => {
   return (
     <main className="flex min-h-[calc(100vh-140px)] w-full flex-col items-center justify-center bg-[#eae2d5] px-4 py-12 sm:px-6 md:px-8">
       <div className="flex w-full max-w-xl flex-col items-center justify-center rounded-2xl border border-[#e5e5e0] bg-white p-8 text-center shadow-xs sm:p-12 md:p-14">
-        {/* Book Illustration Circle */}
         <div className="relative mb-6 flex h-40 w-40 items-center justify-center overflow-hidden rounded-full bg-[#f6f5f0] p-4 sm:h-48 sm:w-48">
           <Image
             src={book404Img}

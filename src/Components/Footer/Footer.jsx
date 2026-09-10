@@ -120,23 +120,23 @@ const Footer = () => {
   };
 
   return (
-    <footer className="w-full border-t border-[#e2d9cb] bg-[#eae2d5] text-[#090e14] transition-all">
+    <footer className="w-full border-t border-[#e2d9cb] dark:border-[#252d48] bg-[#eae2d5] dark:bg-[#0b1020] text-[#090e14] dark:text-[#e6e6e6] transition-all">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8 lg:px-12 lg:py-16">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-12">
           <div className="flex flex-col items-start lg:col-span-4">
             <Link
               href="/"
-              className="font-playfair text-2xl font-bold tracking-tight text-[#090e14] transition-opacity hover:opacity-90 sm:text-3xl"
+              className="font-playfair text-2xl font-bold tracking-tight text-[#090e14] dark:text-[#e6e6e6] transition-opacity hover:opacity-90 sm:text-3xl"
             >
               Fable
             </Link>
 
-            <p className="mt-3 max-w-sm text-xs leading-relaxed text-[#555555] sm:text-sm">
+            <p className="mt-3 max-w-sm text-xs leading-relaxed text-[#555555] dark:text-[#b5b5c4] sm:text-sm">
               Connecting readers with independent writers and original digital stories. A curated sanctuary designed for focus, immersion, and deep reading.
             </p>
 
             <div className="mt-6 flex flex-col gap-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#090e14]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#090e14] dark:text-[#f0b465]">
                 Follow Us
               </span>
               <div className="flex items-center gap-3">
@@ -145,7 +145,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d8d1c7] bg-[#fafaf8] text-[#090e14] transition-all hover:border-[#090e14] hover:bg-[#050d16] hover:text-white hover:scale-105 shadow-2xs"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d8d1c7] dark:border-[#323b5c] bg-[#fafaf8] dark:bg-[#141a2e] text-[#090e14] dark:text-[#e6e6e6] transition-all hover:border-[#090e14] dark:hover:border-[#f0b465] hover:bg-[#050d16] dark:hover:bg-[#1a213a] hover:text-white dark:hover:text-[#f0b465] hover:scale-105 shadow-2xs"
                 >
                   <FacebookIcon />
                 </a>
@@ -155,7 +155,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Twitter or X"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d8d1c7] bg-[#fafaf8] text-[#090e14] transition-all hover:border-[#090e14] hover:bg-[#050d16] hover:text-white hover:scale-105 shadow-2xs"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d8d1c7] dark:border-[#323b5c] bg-[#fafaf8] dark:bg-[#141a2e] text-[#090e14] dark:text-[#e6e6e6] transition-all hover:border-[#090e14] dark:hover:border-[#f0b465] hover:bg-[#050d16] dark:hover:bg-[#1a213a] hover:text-white dark:hover:text-[#f0b465] hover:scale-105 shadow-2xs"
                 >
                   <TwitterIcon />
                 </a>
@@ -165,7 +165,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d8d1c7] bg-[#fafaf8] text-[#090e14] transition-all hover:border-[#090e14] hover:bg-[#050d16] hover:text-white hover:scale-105 shadow-2xs"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d8d1c7] dark:border-[#323b5c] bg-[#fafaf8] dark:bg-[#141a2e] text-[#090e14] dark:text-[#e6e6e6] transition-all hover:border-[#090e14] dark:hover:border-[#f0b465] hover:bg-[#050d16] dark:hover:bg-[#1a213a] hover:text-white dark:hover:text-[#f0b465] hover:scale-105 shadow-2xs"
                 >
                   <LinkedinIcon />
                 </a>
@@ -175,7 +175,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d8d1c7] bg-[#fafaf8] text-[#090e14] transition-all hover:border-[#090e14] hover:bg-[#050d16] hover:text-white hover:scale-105 shadow-2xs"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d8d1c7] dark:border-[#323b5c] bg-[#fafaf8] dark:bg-[#141a2e] text-[#090e14] dark:text-[#e6e6e6] transition-all hover:border-[#090e14] dark:hover:border-[#f0b465] hover:bg-[#050d16] dark:hover:bg-[#1a213a] hover:text-white dark:hover:text-[#f0b465] hover:scale-105 shadow-2xs"
                 >
                   <InstagramIcon />
                 </a>
@@ -184,15 +184,15 @@ const Footer = () => {
           </div>
 
           <div className="flex flex-col lg:col-span-3">
-            <h3 className="font-playfair text-base font-bold tracking-tight text-[#090e14] sm:text-lg">
+            <h3 className="font-playfair text-base font-bold tracking-tight text-[#090e14] dark:text-[#e6e6e6] sm:text-lg">
               Quick Links
             </h3>
 
-            <ul className="mt-4 flex flex-col gap-2.5 text-xs font-medium text-[#444444] sm:text-sm">
+            <ul className="mt-4 flex flex-col gap-2.5 text-xs font-medium text-[#444444] dark:text-[#b5b5c4] sm:text-sm">
               <li>
                 <Link
                   href="/about"
-                  className="inline-block transition-colors hover:text-[#090e14] hover:underline underline-offset-4"
+                  className="inline-block transition-colors hover:text-[#090e14] dark:hover:text-[#f0b465] hover:underline underline-offset-4"
                 >
                   About
                 </Link>
@@ -200,7 +200,7 @@ const Footer = () => {
               <li>
                 <Link
                   href="/contact"
-                  className="inline-block transition-colors hover:text-[#090e14] hover:underline underline-offset-4"
+                  className="inline-block transition-colors hover:text-[#090e14] dark:hover:text-[#f0b465] hover:underline underline-offset-4"
                 >
                   Contact
                 </Link>
@@ -208,7 +208,7 @@ const Footer = () => {
               <li>
                 <Link
                   href="/privacy"
-                  className="inline-block transition-colors hover:text-[#090e14] hover:underline underline-offset-4"
+                  className="inline-block transition-colors hover:text-[#090e14] dark:hover:text-[#f0b465] hover:underline underline-offset-4"
                 >
                   Privacy Policy
                 </Link>
@@ -217,18 +217,18 @@ const Footer = () => {
           </div>
 
           <div className="flex flex-col sm:col-span-2 lg:col-span-5">
-            <h3 className="font-playfair text-base font-bold tracking-tight text-[#090e14] sm:text-lg">
+            <h3 className="font-playfair text-base font-bold tracking-tight text-[#090e14] dark:text-[#e6e6e6] sm:text-lg">
               Subscribe to our newsletter
             </h3>
 
-            <p className="mt-2 text-xs leading-relaxed text-[#555555] sm:text-sm">
+            <p className="mt-2 text-xs leading-relaxed text-[#555555] dark:text-[#b5b5c4] sm:text-sm">
               Receive handpicked story recommendations, new release alerts, and exclusive author insights directly in your inbox.
             </p>
 
             <div className="mt-4 w-full">
               {subscribed ? (
-                <div className="flex items-center gap-2.5 rounded-lg border border-[#bbf7d0] bg-[#f0fdf4] p-3 text-xs font-medium text-[#166534]">
-                  <CheckCircleIcon className="shrink-0 text-[#16a34a]" />
+                <div className="flex items-center gap-2.5 rounded-lg border border-[#bbf7d0] dark:border-[#14532d] bg-[#f0fdf4] dark:bg-[#052e16] p-3 text-xs font-medium text-[#166534] dark:text-[#86efac]">
+                  <CheckCircleIcon className="shrink-0 text-[#16a34a] dark:text-[#22c55e]" />
                   <span>You are subscribed! Thank you for joining our community.</span>
                 </div>
               ) : (
@@ -247,13 +247,13 @@ const Footer = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
-                      className="h-10 w-full rounded-lg border border-[#d8d1c7] bg-white px-3.5 text-xs text-[#090e14] placeholder:text-[#888888] focus:border-[#090e14] focus:outline-none focus:ring-1 focus:ring-[#090e14] transition-all"
+                      className="h-10 w-full rounded-lg border border-[#d8d1c7] dark:border-[#323b5c] bg-white dark:bg-[#141a2e] px-3.5 text-xs text-[#090e14] dark:text-[#e6e6e6] placeholder:text-[#888888] dark:placeholder:text-[#6b7280] focus:border-[#090e14] dark:focus:border-[#f0b465] focus:outline-none focus:ring-1 focus:ring-[#090e14] dark:focus:ring-[#f0b465] transition-all"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-[#050d16] px-5 text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#182230] active:scale-[0.99] cursor-pointer shrink-0"
+                    className="flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-[#050d16] dark:bg-[#141a2e] dark:border dark:border-[#323b5c] px-5 text-xs font-semibold uppercase tracking-wider text-white dark:text-[#f0b465] shadow-xs transition-all hover:bg-[#182230] dark:hover:bg-[#1a213a] active:scale-[0.99] cursor-pointer shrink-0"
                   >
                     <span>Subscribe</span>
                     <SendIcon />
@@ -264,8 +264,8 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-[#e2d9cb] pt-8 text-center">
-          <p className="text-xs font-normal text-[#666666]">
+        <div className="mt-12 border-t border-[#e2d9cb] dark:border-[#252d48] pt-8 text-center">
+          <p className="text-xs font-normal text-[#666666] dark:text-[#9ca3af]">
             © 2026 Fable. All rights reserved.
           </p>
         </div>

@@ -47,7 +47,6 @@ export const getEBookById = async (id) => {
     console.error("Error fetching ebook by direct ID endpoint:", error);
   }
 
-  // Fallback: search within all ebooks list if direct endpoint fails or returns non-200
   try {
     const allBooks = await getDataAllEBooks();
     if (Array.isArray(allBooks)) {

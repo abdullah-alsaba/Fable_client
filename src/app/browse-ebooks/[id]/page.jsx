@@ -4,6 +4,8 @@ import { getEBookById } from "@/utils/data";
 import { User, Calendar, Tag, BookOpen, AlertCircle, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import BookmarkButton from "./BookmarkButton";
 import BuyButton from "./BuyButton";
+import EbookContent from "./EbookContent";
+import BookContent from "./BookContent";
 
 export const dynamic = "force-dynamic";
 
@@ -173,39 +175,10 @@ export default async function EBookDetailsPage({ params }) {
                 </div>
               </div>
 
-              <div className="space-y-2 pt-2">
-                <h3 className="font-playfair text-sm font-bold uppercase tracking-wider text-[#090e14]">
-                  Description & Content Preview
-                </h3>
-                <p className="text-xs sm:text-sm text-[#555555] leading-relaxed whitespace-pre-line">
-                  {book.description ||
-                    "Discover an extraordinary literary work available on Fable. Explores captivating themes with rich narrative depth, perfectly suited for the discerning reader."}
-                </p>
-              </div>
-
-              {book.content && (
-                <div className="mt-4 p-4 rounded-lg bg-[#f8f7f4] border border-[#e8e4dc] space-y-1.5">
-                  <h4 className="font-playfair text-xs font-bold text-[#855210] uppercase tracking-wider flex items-center gap-1.5">
-                    <BookOpen size={14} />
-                    Content Excerpt
-                  </h4>
-                  <p className="text-xs text-[#666] italic leading-relaxed line-clamp-4">
-                    &quot;{book.content}&quot;
-                  </p>
-                </div>
-              )}
+              <EbookContent book={book} />
 
               <div className="pt-4 flex flex-wrap gap-4 items-center">
-                {isSold ? (
-                  <button
-                    disabled
-                    className="cursor-not-allowed rounded-lg bg-gray-200 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 border border-gray-300"
-                  >
-                    Item Sold Out
-                  </button>
-                ) : (
-                  <BuyButton book={book} />
-                )}
+                <BuyButton book={book} />
 
                 <BookmarkButton book={book} />
               </div>

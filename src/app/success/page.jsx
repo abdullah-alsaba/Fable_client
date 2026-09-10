@@ -10,7 +10,7 @@ async function savePurchaseToDB(session) {
 
     const purchase = {
       ebookId: meta.bookId || "",
-      ebookTitle: meta.title || "Unknown Ebook",
+      ebookTitle: meta.title || (meta.type === "publishing fee" ? "Writer Verification Fee" : "Unknown Ebook"),
       writerName: meta.writerName || "Fable Writer",
       writerEmail: meta.writerEmail || "",
       userEmail: meta.userEmail || session.customer_details?.email || "",
@@ -24,6 +24,7 @@ async function savePurchaseToDB(session) {
       stripeSessionId: session.id,
       paymentStatus: session.payment_status,
       status: "Completed",
+      type: meta.type || "purchase",
     };
 
     const res = await fetch(`${serverUri}/api/purchases`, {
@@ -65,26 +66,25 @@ export default async function SuccessPage({ searchParams }) {
     return redirect("/");
   }
 
-  // Save purchase to MongoDB
   await savePurchaseToDB(session);
 
   const meta = session.metadata || {};
+  const isPublishingFee = meta.type === "publishing fee";
   const customerEmail =
     session.customer_details?.email || meta.userEmail || "your email";
   const customerName = session.customer_details?.name || meta.userName || "Reader";
-  const bookTitle = meta.title || "Your Ebook";
+  const bookTitle = meta.title || (isPublishingFee ? "Writer Verification Fee" : "Your Ebook");
   const bookCover =
     meta.cover ||
     "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80";
   const writerName = meta.writerName || "Fable Writer";
-  const price = parseFloat(meta.price) || 0;
+  const price = parseFloat(meta.price) || (isPublishingFee ? 15 : 0);
   const genre = meta.genre || "Fiction";
   const bookId = meta.bookId || "";
 
   return (
     <div className="min-h-screen bg-[#eae2d5] py-12 px-4 sm:px-6 lg:px-12 flex items-center justify-center">
       <div className="w-full max-w-2xl space-y-6">
-        {/* Success Banner */}
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center shadow-xs">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg">
             <CheckCircle size={36} />
@@ -93,8 +93,8 @@ export default async function SuccessPage({ searchParams }) {
             Payment Successful!
           </h1>
           <p className="mt-2 text-sm text-emerald-700">
-            Thank you, <span className="font-semibold">{customerName}</span>! Your purchase is
-            confirmed.
+            Thank you, <span className="font-semibold">{customerName}</span>! Your{" "}
+            {isPublishingFee ? "writer verification" : "purchase"} is confirmed.
           </p>
           <p className="mt-1 text-xs text-emerald-600">
             A confirmation receipt has been sent to{" "}
@@ -102,7 +102,6 @@ export default async function SuccessPage({ searchParams }) {
           </p>
         </div>
 
-        {/* Book Card */}
         <div className="rounded-2xl border border-[#e5e2dc] bg-white p-6 shadow-xs">
           <h2 className="font-playfair text-lg font-bold text-[#090e14] mb-4 flex items-center gap-2">
             <BookOpen size={20} className="text-[#855210]" />
@@ -110,9 +109,7 @@ export default async function SuccessPage({ searchParams }) {
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-5 items-start">
-            {/* Cover */}
             <div className="h-36 w-24 shrink-0 overflow-hidden rounded-lg border border-[#e5e2dc] shadow-sm mx-auto sm:mx-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={bookCover}
                 alt={bookTitle}
@@ -120,7 +117,6 @@ export default async function SuccessPage({ searchParams }) {
               />
             </div>
 
-            {/* Info */}
             <div className="flex-1 space-y-2">
               <h3 className="font-playfair text-xl font-bold text-[#090e14] leading-snug">
                 {bookTitle}
@@ -163,16 +159,25 @@ export default async function SuccessPage({ searchParams }) {
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
-          {bookId && (
+          {isPublishingFee ? (
             <Link
-              href={`/browse-ebooks/${bookId}`}
+              href="/dashboard/writer"
               className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#050d16] px-6 py-3 text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#182230]"
             >
               <BookOpen size={16} />
-              Read Ebook
+              Go to Writer Dashboard
             </Link>
+          ) : (
+            bookId && (
+              <Link
+                href={`/browse-ebooks/${bookId}`}
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#050d16] px-6 py-3 text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#182230]"
+              >
+                <BookOpen size={16} />
+                Read Ebook
+              </Link>
+            )
           )}
 
           <Link
@@ -192,7 +197,6 @@ export default async function SuccessPage({ searchParams }) {
           </Link>
         </div>
 
-        {/* Note */}
         <p className="text-center text-[11px] text-[#aaa9a5]">
           Your purchased ebook is now available in your{" "}
           <Link

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { ProfileDropdown } from "../ProfileDropDown/ProfileDropDown";
+import { ThemeToggle } from "../ThemeToggle/ThemeToggle";
 
 const MenuIcon = () => (
   <svg
@@ -67,13 +68,13 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-[#e2d9cb] bg-[#eae2d5]/95 backdrop-blur-md transition-all">
+      <header className="sticky top-0 z-50 w-full border-b border-[#e2d9cb] dark:border-[#252d48] bg-[#eae2d5]/95 dark:bg-[#0b1020]/95 backdrop-blur-md transition-all">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-8 lg:px-12">
           <div className="flex items-center md:hidden">
             <button
               type="button"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="p-1.5 text-[#090e14] hover:text-[#a2753b] focus:outline-none cursor-pointer"
+              className="p-1.5 text-[#090e14] dark:text-[#e6e6e6] hover:text-[#a2753b] dark:hover:text-[#f0b465] focus:outline-none cursor-pointer"
               aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
@@ -82,7 +83,7 @@ const Navbar = () => {
 
           <Link
             href="/"
-            className="font-playfair text-2xl font-bold tracking-tight text-[#090e14] transition-opacity hover:opacity-90 sm:text-3xl"
+            className="font-playfair text-2xl font-bold tracking-tight text-[#090e14] dark:text-[#e6e6e6] transition-opacity hover:opacity-90 sm:text-3xl"
           >
             Fable
           </Link>
@@ -96,8 +97,8 @@ const Navbar = () => {
                   href={link.href}
                   className={`relative py-1 text-sm font-medium transition-colors ${
                     active
-                      ? "font-semibold text-[#090e14] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-[#090e14]"
-                      : "text-[#555555] hover:text-[#090e14]"
+                      ? "font-semibold text-[#090e14] dark:text-[#f0b465] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-[#090e14] dark:after:bg-[#f0b465]"
+                      : "text-[#555555] dark:text-[#b5b5c4] hover:text-[#090e14] dark:hover:text-[#e6e6e6]"
                   }`}
                 >
                   {link.name}
@@ -107,6 +108,7 @@ const Navbar = () => {
           </nav>
 
           <div className="hidden items-center gap-3.5 md:flex min-h-9">
+            <ThemeToggle />
             {isPending ? (
               <ProfileSkeleton />
             ) : session?.user ? (
@@ -115,14 +117,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/login"
-                  className="px-3.5 py-1.5 text-sm font-medium text-[#090e14] transition-colors hover:text-[#a2753b]"
+                  className="px-3.5 py-1.5 text-sm font-medium text-[#090e14] dark:text-[#e6e6e6] transition-colors hover:text-[#a2753b] dark:hover:text-[#f0b465]"
                 >
                   Login
                 </Link>
 
                 <Link
                   href="/register"
-                  className="flex h-9 items-center justify-center rounded-lg bg-[#050d16] px-4 text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#182230] active:scale-[0.99]"
+                  className="flex h-9 items-center justify-center rounded-lg bg-[#050d16] dark:bg-[#141a2e] dark:border dark:border-[#323b5c] px-4 text-xs font-semibold uppercase tracking-wider text-white dark:text-[#f0b465] shadow-xs transition-all hover:bg-[#182230] dark:hover:bg-[#1a213a] active:scale-[0.99]"
                 >
                   Sign Up
                 </Link>
@@ -130,7 +132,8 @@ const Navbar = () => {
             )}
           </div>
 
-          <div className="flex items-center md:hidden min-h-9">
+          <div className="flex items-center gap-2 md:hidden min-h-9">
+            <ThemeToggle />
             {isPending ? (
               <ProfileSkeleton />
             ) : session?.user ? (
@@ -138,7 +141,7 @@ const Navbar = () => {
             ) : (
               <Link
                 href="/login"
-                className="text-xs font-semibold text-[#090e14] hover:text-[#a2753b]"
+                className="text-xs font-semibold text-[#090e14] dark:text-[#e6e6e6] hover:text-[#a2753b] dark:hover:text-[#f0b465]"
               >
                 Sign In
               </Link>
@@ -147,7 +150,7 @@ const Navbar = () => {
         </div>
 
         {mobileMenuOpen && (
-          <div className="border-t border-[#e2d9cb] bg-[#eae2d5] px-6 py-4 md:hidden">
+          <div className="border-t border-[#e2d9cb] dark:border-[#252d48] bg-[#eae2d5] dark:bg-[#0b1020] px-6 py-4 md:hidden">
             <div className="flex flex-col gap-3">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
@@ -158,8 +161,8 @@ const Navbar = () => {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`py-2 text-sm font-medium transition-colors ${
                       active
-                        ? "font-bold text-[#090e14]"
-                        : "text-[#555555] hover:text-[#090e14]"
+                        ? "font-bold text-[#090e14] dark:text-[#f0b465]"
+                        : "text-[#555555] dark:text-[#b5b5c4] hover:text-[#090e14] dark:hover:text-[#e6e6e6]"
                     }`}
                   >
                     {link.name}
@@ -167,7 +170,7 @@ const Navbar = () => {
                 );
               })}
 
-              <div className="my-2 h-px w-full bg-[#e2d9cb]" />
+              <div className="my-2 h-px w-full bg-[#e2d9cb] dark:bg-[#252d48]" />
 
               {isPending ? (
                 <div className="py-2">
@@ -182,7 +185,7 @@ const Navbar = () => {
                   <Link
                     href="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex h-10 w-full items-center justify-center rounded-lg border border-[#090e14] text-xs font-semibold text-[#090e14] transition-colors"
+                    className="flex h-10 w-full items-center justify-center rounded-lg border border-[#090e14] dark:border-[#f0b465] text-xs font-semibold text-[#090e14] dark:text-[#f0b465] transition-colors"
                   >
                     Login
                   </Link>
@@ -190,7 +193,7 @@ const Navbar = () => {
                   <Link
                     href="/register"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex h-10 w-full items-center justify-center rounded-lg bg-[#050d16] text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-colors"
+                    className="flex h-10 w-full items-center justify-center rounded-lg bg-[#050d16] dark:bg-[#141a2e] dark:border dark:border-[#323b5c] text-xs font-semibold uppercase tracking-wider text-white dark:text-[#f0b465] shadow-xs transition-colors"
                   >
                     Sign Up
                   </Link>

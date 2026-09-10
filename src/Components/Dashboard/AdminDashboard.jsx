@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import DashboardSidebar from "./DashboardSidebar";
 import { myToast } from "@/utils/customToast";
+import TableRowSkeleton from "@/Components/Skeleton/TableRowSkeleton";
 import {
   ResponsiveContainer,
   BarChart,
@@ -43,86 +44,13 @@ export default function AdminDashboard() {
   const [ebookSearch, setEbookSearch] = useState("");
   const [transactionSearch, setTransactionSearch] = useState("");
   const [transactionTypeFilter, setTransactionTypeFilter] = useState("all");
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  const [usersList, setUsersList] = useState([
-    {
-      id: "usr-1",
-      name: "Eleanor Vance",
-      email: "eleanor.vance@example.com",
-      role: "user",
-      joinedDate: "2025-11-12",
-    },
-    {
-      id: "usr-2",
-      name: "Arthur Pendelton",
-      email: "arthur.pendelton@example.com",
-      role: "writer",
-      joinedDate: "2025-08-04",
-    },
-    {
-      id: "usr-3",
-      name: "Dr. Sarah Lin",
-      email: "sarah.lin@example.com",
-      role: "writer",
-      joinedDate: "2025-09-19",
-    },
-    {
-      id: "usr-4",
-      name: "System Administrator",
-      email: "admin@fable.com",
-      role: "admin",
-      joinedDate: "2025-01-01",
-    },
-  ]);
-
-  const [allEbooksList, setAllEbooksList] = useState([
-    {
-      id: "eb-1",
-      title: "The Midnight Library of Alexandria",
-      writerName: "Arthur Pendelton",
-      price: 14.99,
-      status: "published",
-      genre: "Fantasy",
-    },
-    {
-      id: "eb-2",
-      title: "Chronicles of Neon City",
-      writerName: "Elena Rostova",
-      price: 9.99,
-      status: "published",
-      genre: "Sci-Fi",
-    },
-    {
-      id: "eb-3",
-      title: "Whispers in the Mist",
-      writerName: "Marcus Vance",
-      price: 12.50,
-      status: "published",
-      genre: "Thriller",
-    },
-  ]);
-
+  const [usersList, setUsersList] = useState([]);
+  const [allEbooksList, setAllEbooksList] = useState([]);
   const [transactionsList, setTransactionsList] = useState([]);
-
-  const monthlySalesData = [
-    { month: "Jan", sales: 14, revenue: 280 },
-    { month: "Feb", sales: 22, revenue: 440 },
-    { month: "Mar", sales: 35, revenue: 710 },
-    { month: "Apr", sales: 28, revenue: 560 },
-    { month: "May", sales: 42, revenue: 890 },
-    { month: "Jun", sales: 38, revenue: 790 },
-    { month: "Jul", sales: 50, revenue: 1100 },
-    { month: "Aug", sales: 62, revenue: 1350 },
-    { month: "Sep", sales: 75, revenue: 1680 },
-  ];
-
-  const genrePieData = [
-    { name: "Fiction", value: 38 },
-    { name: "Fantasy", value: 26 },
-    { name: "Sci-Fi", value: 18 },
-    { name: "Non-Fiction", value: 10 },
-    { name: "History", value: 8 },
-  ];
+  const [monthlySalesData, setMonthlySalesData] = useState([]);
+  const [genrePieData, setGenrePieData] = useState([]);
 
   const PIE_COLORS = ["#050d16", "#855210", "#2563eb", "#16a34a", "#9333ea"];
 
@@ -151,7 +79,7 @@ export default function AdminDashboard() {
 
       const usersRes = await fetch(`${serverUri}/api/users`);
       const usersData = await usersRes.json();
-      if (usersData.success && Array.isArray(usersData.users) && usersData.users.length > 0) {
+      if (usersData.success && Array.isArray(usersData.users)) {
         setUsersList(
           usersData.users.map((u) => ({
             id: u._id || u.id,
@@ -161,23 +89,23 @@ export default function AdminDashboard() {
             joinedDate: u.createdAt ? u.createdAt.split("T")[0] : "Recent",
           }))
         );
+      } else {
+        setUsersList([]);
       }
 
       const booksRes = await fetch(`${serverUri}/browse-ebooks`);
       const booksData = await booksRes.json();
       const list = Array.isArray(booksData) ? booksData : booksData.ebooks || [];
-      if (list.length > 0) {
-        setAllEbooksList(
-          list.map((b) => ({
-            id: b._id || b.id,
-            title: b.title,
-            writerName: b.writerName || b.author || "Fable Writer",
-            price: parseFloat(b.price) || 0,
-            status: b.status || "published",
-            genre: b.genre || "Fiction",
-          }))
-        );
-      }
+      setAllEbooksList(
+        list.map((b) => ({
+          id: b._id || b.id,
+          title: b.title,
+          writerName: b.writerName || b.author || "Fable Writer",
+          price: parseFloat(b.price) || 0,
+          status: b.status || "published",
+          genre: b.genre || "Fiction",
+        }))
+      );
 
       const purchasesRes = await fetch(`${serverUri}/api/purchases`);
       const purchasesData = await purchasesRes.json();
@@ -194,8 +122,22 @@ export default function AdminDashboard() {
       } else {
         setTransactionsList([]);
       }
+
+      const analyticsRes = await fetch(`${serverUri}/api/analytics`);
+      const analyticsData = await analyticsRes.json();
+      if (analyticsData.success) {
+        if (Array.isArray(analyticsData.monthlySales)) {
+          setMonthlySalesData(analyticsData.monthlySales);
+        }
+        if (Array.isArray(analyticsData.genreDistribution)) {
+          setGenrePieData(analyticsData.genreDistribution);
+        }
+      }
     } catch (err) {
       console.error(err);
+      myToast.error("Failed to load admin data");
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
@@ -291,7 +233,7 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#eae2d5]">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] bg-[#eae2d5] px-4 sm:px-6 lg:px-10 py-4 lg:py-6 gap-5 lg:gap-6">
       <DashboardSidebar
         user={session?.user}
         role="admin"
@@ -304,7 +246,7 @@ export default function AdminDashboard() {
         }}
       />
 
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl">
+      <main className="flex-1 min-w-0 max-w-6xl">
         {activeTab === "overview" && (
           <div className="space-y-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -313,9 +255,6 @@ export default function AdminDashboard() {
                   <p className="text-xs font-semibold text-[#666666]">Total Users</p>
                   <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">
                     {totalUsersCount}
-                  </p>
-                  <p className="mt-1 text-[11px] text-emerald-600 font-semibold">
-                    +12% growth
                   </p>
                 </div>
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
@@ -329,9 +268,6 @@ export default function AdminDashboard() {
                   <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">
                     {totalWritersCount}
                   </p>
-                  <p className="mt-1 text-[11px] text-emerald-600 font-semibold">
-                    +5 active
-                  </p>
                 </div>
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
                   <Award size={22} />
@@ -343,9 +279,6 @@ export default function AdminDashboard() {
                   <p className="text-xs font-semibold text-[#666666]">Ebooks Sold</p>
                   <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">
                     {totalEbooksSoldCount}
-                  </p>
-                  <p className="mt-1 text-[11px] text-emerald-600 font-semibold">
-                    +18% growth
                   </p>
                 </div>
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-purple-700">
@@ -456,7 +389,7 @@ export default function AdminDashboard() {
                         style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }}
                       />
                       <span className="font-medium text-[#222222]">
-                        {g.name}: <strong className="text-[#090e14]">{g.value}%</strong>
+                        {g.name}: <strong className="text-[#090e14]">{g.value}</strong>
                       </span>
                     </div>
                   ))}

@@ -8,7 +8,6 @@ const FeaturedBooks = async () => {
 
   return (
     <section className="w-full px-5.5">
-      {/* Heading */}
       <div className="mb-6.75 flex items-center justify-between">
         <h2
           className="
@@ -39,7 +38,6 @@ const FeaturedBooks = async () => {
         </Link>
       </div>
 
-      {/* Books */}
       <div
         className="
           grid

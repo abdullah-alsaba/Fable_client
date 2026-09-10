@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { useSession, authClient } from "@/lib/auth-client";
 import DashboardSidebar from "./DashboardSidebar";
 import { myToast } from "@/utils/customToast";
+import TableRowSkeleton from "@/Components/Skeleton/TableRowSkeleton";
 import {
   ShoppingBag,
   BookOpen,
@@ -61,12 +62,24 @@ export default function UserDashboard() {
   const [purchaseHistory, setPurchaseHistory] = useState([]);
   const [purchasedEbooks, setPurchasedEbooks] = useState([]);
   const [bookmarkedEbooks, setBookmarkedEbooks] = useState([]);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
-    if (!isPending && session?.user) {
+    if (!isPending) {
+      if (!session?.user) {
+        router.replace("/login");
+        return;
+      }
+
       const role = session.user.role;
       if (role === "writer" && session.user.email !== "admin@fable.com") {
         router.replace("/dashboard/writer");
+        return;
+      }
+      if (role === "admin" || session.user.email === "admin@fable.com") {
+        router.replace("/dashboard/admin");
         return;
       }
 
@@ -92,8 +105,10 @@ export default function UserDashboard() {
         avatar: userImg || prev.avatar,
       }));
 
-      fetchBookmarksFromDB(session.user.email);
-      fetchPurchasesFromDB(session.user.email);
+      Promise.all([
+        fetchBookmarksFromDB(session.user.email),
+        fetchPurchasesFromDB(session.user.email),
+      ]).finally(() => setIsLoadingData(false));
     }
   }, [session, isPending, router]);
 
@@ -169,17 +184,61 @@ export default function UserDashboard() {
     }
   };
 
-  const handleSaveProfile = (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
-    setProfileData((prev) => ({
-      ...prev,
-      name: editForm.name,
-      avatar: editForm.avatar,
-      bio: editForm.bio,
-      location: editForm.location,
-    }));
-    setIsEditProfileOpen(false);
-    myToast.success("Profile updated successfully");
+    setIsSavingProfile(true);
+    try {
+      let imageUrl = editForm.avatar;
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("image", avatarFile);
+        const uploadResponse = await fetch(
+          `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        const uploadData = await uploadResponse.json();
+        if (!uploadData?.data?.url) {
+          myToast.error("Image upload failed. Please try again.");
+          return;
+        }
+        imageUrl = uploadData.data.url;
+      }
+
+      await authClient.updateUser({
+        name: editForm.name,
+        image: imageUrl,
+      });
+
+      const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
+      await fetch(`${serverUri}/api/users/profile`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: session?.user?.email,
+          name: editForm.name,
+          image: imageUrl,
+        }),
+      });
+
+      setProfileData((prev) => ({
+        ...prev,
+        name: editForm.name,
+        avatar: imageUrl,
+        bio: editForm.bio,
+        location: editForm.location,
+      }));
+      setEditForm((prev) => ({ ...prev, avatar: imageUrl }));
+      setAvatarFile(null);
+      setIsEditProfileOpen(false);
+      myToast.success("Profile updated successfully");
+    } catch {
+      myToast.error("Failed to update profile. Please try again.");
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   const filteredPurchases = purchaseHistory.filter((item) => {
@@ -192,7 +251,7 @@ export default function UserDashboard() {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#eae2d5]">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] bg-[#eae2d5] px-4 sm:px-6 lg:px-10 py-4 lg:py-6 gap-5 lg:gap-6">
       <DashboardSidebar
         user={session?.user || profileData}
         role={profileData.role}
@@ -205,7 +264,7 @@ export default function UserDashboard() {
         }}
       />
 
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl">
+      <main className="flex-1 min-w-0 max-w-6xl">
         <div className="mb-6 rounded-2xl border border-[#e2d9cb] bg-white p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -264,7 +323,9 @@ export default function UserDashboard() {
               )}
             </div>
 
-            {purchaseHistory.length > 0 ? (
+            {isLoadingData ? (
+              <TableRowSkeleton rows={5} cols={5} />
+            ) : purchaseHistory.length > 0 ? (
               <div className="overflow-x-auto rounded-xl border border-[#e5e2dc]">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#f9f8f5] text-[11px] font-bold uppercase tracking-wider text-[#555555]">
@@ -677,17 +738,18 @@ export default function UserDashboard() {
 
                 <div>
                   <label className="block font-bold text-[#090e14] mb-1">
-                    Avatar Image URL
+                    Profile Picture
                   </label>
                   <input
-                    type="url"
-                    value={editForm.avatar}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, avatar: e.target.value })
-                    }
-                    required
-                    className="w-full rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-3 py-2 text-xs text-[#090e14] focus:bg-[#ffffff] focus:outline-none"
+                    type="file"
+                    accept="image/*"
+                    disabled={isSavingProfile}
+                    onChange={(e) => setAvatarFile(e.target.files[0] || null)}
+                    className="w-full rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-3 py-2 text-xs text-[#090e14] file:mr-3 file:rounded-md file:border-0 file:bg-[#050d16] file:px-3 file:py-1 file:text-xs file:font-semibold file:text-white"
                   />
+                  {avatarFile && (
+                    <p className="mt-1 text-[11px] text-[#666666]">Selected: {avatarFile.name}</p>
+                  )}
                 </div>
 
                 <div>
@@ -728,9 +790,10 @@ export default function UserDashboard() {
                   </button>
                   <button
                     type="submit"
-                    className="rounded-lg bg-[#050d16] px-4 py-2 text-xs font-semibold text-white hover:bg-[#182230]"
+                    disabled={isSavingProfile}
+                    className="rounded-lg bg-[#050d16] px-4 py-2 text-xs font-semibold text-white hover:bg-[#182230] disabled:opacity-60"
                   >
-                    Save Changes
+                    {isSavingProfile ? "Saving..." : "Save Changes"}
                   </button>
                 </div>
               </form>

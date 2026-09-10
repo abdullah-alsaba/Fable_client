@@ -6,8 +6,45 @@ export async function POST(req) {
   try {
     const headersList = await headers();
     const origin = headersList.get("origin") || "http://localhost:3000";
-
     const body = await req.json();
+    const checkoutType = body.type || "purchase";
+
+    if (checkoutType === "publishing fee" || checkoutType === "publishing_fee") {
+      if (!body.userEmail) {
+        return NextResponse.json({ error: "Writer email is required" }, { status: 400 });
+      }
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: "Fable Writer Verification Fee",
+                description: "One-time publishing verification payment",
+              },
+              unit_amount: 1500,
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/dashboard/writer`,
+        metadata: {
+          type: "publishing fee",
+          title: "Writer Verification Fee",
+          price: "15",
+          userEmail: body.userEmail || "",
+          userName: body.userName || "",
+          writerEmail: body.userEmail || "",
+        },
+      });
+
+      return NextResponse.json({ url: session.url });
+    }
+
     const { bookId, title, price, cover, writerName, writerEmail, userEmail, userName, genre } = body;
 
     if (!bookId || !title || price === undefined) {
@@ -16,7 +53,6 @@ export async function POST(req) {
 
     const priceInCents = Math.round(parseFloat(price) * 100);
 
-    // Create Stripe Checkout Session dynamically for this book
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -28,7 +64,7 @@ export async function POST(req) {
               description: `By ${writerName || "Fable Writer"} · ${genre || "Ebook"}`,
               images: cover ? [cover] : [],
             },
-            unit_amount: priceInCents || 100, // fallback $1.00
+            unit_amount: priceInCents || 100,
           },
           quantity: 1,
         },
@@ -37,6 +73,7 @@ export async function POST(req) {
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/browse-ebooks/${bookId}`,
       metadata: {
+        type: "purchase",
         bookId,
         title,
         price: String(price),

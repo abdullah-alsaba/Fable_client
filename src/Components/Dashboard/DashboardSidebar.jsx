@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
 import {
   User,
@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 
 export default function DashboardSidebar({ user, role, activeTab, setActiveTab, counts = {} }) {
-  const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -72,7 +71,7 @@ export default function DashboardSidebar({ user, role, activeTab, setActiveTab, 
 
   return (
     <>
-      <div className="lg:hidden flex items-center justify-between border-b border-[#e2d9cb] bg-white px-4 py-3 mb-4 rounded-xl shadow-2xs">
+      <div className="lg:hidden flex items-center justify-between border border-[#e2d9cb] bg-white px-4 py-3 mb-2 rounded-2xl shadow-xs">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -102,8 +101,8 @@ export default function DashboardSidebar({ user, role, activeTab, setActiveTab, 
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#e2d9cb] p-5 flex flex-col justify-between transition-transform duration-300 lg:static lg:translate-x-0 ${
-          mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+        className={`fixed top-4 bottom-4 left-4 z-40 w-64 shrink-0 rounded-2xl bg-white border border-[#e2d9cb] p-5 flex flex-col justify-between shadow-xs transition-transform duration-300 lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)] lg:translate-x-0 ${
+          mobileOpen ? "translate-x-0" : "-translate-x-[120%] lg:translate-x-0"
         }`}
       >
         <div>
@@ -183,8 +182,6 @@ export default function DashboardSidebar({ user, role, activeTab, setActiveTab, 
               );
             })}
           </nav>
-
-
         </div>
 
         <div className="pt-4 border-t border-[#f0ece3] space-y-2">

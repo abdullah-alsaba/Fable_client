@@ -73,33 +73,58 @@ const EyeOffIcon = () => (
 const LogIn = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [jwtLoading, setJwtLoading] = useState(false);
 
   const handelSingInButton = async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
 
-    const email = formData.get("email");
-    const password = formData.get("password");
+    const email = String(formData.get("email") || "").trim();
+    const password = String(formData.get("password") || "");
 
-    let { data, error } = await authClient.signIn.email({
+    if (!email || !password) return;
+
+    setJwtLoading(true);
+    try {
+      const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
+      const jwtRes = await fetch(`${serverUri}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (jwtRes.ok) {
+        const data = await jwtRes.json();
+        if (data.success && data.token) {
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem("fable-jwt", data.token);
+            window.localStorage.setItem(
+              "fable-user",
+              JSON.stringify(data.user)
+            );
+          }
+          myToast.success("Log In Successfully (JWT)");
+          const userRole = data.user?.role;
+          if (userRole === "admin" || email === "admin@fable.com") {
+            router.push("/dashboard/admin");
+          } else if (userRole === "writer") {
+            router.push("/dashboard/writer");
+          } else {
+            router.push("/");
+          }
+          return;
+        }
+      }
+    } catch {
+    } finally {
+      setJwtLoading(false);
+    }
+
+    const { data, error } = await authClient.signIn.email({
       email,
       password,
     });
-
-    if (error && email?.toLowerCase() === "admin@fable.com") {
-      const fallbackPasswords = ["Admin@123", "admin1234", "admin123", "12345678", "admin@fable.com"];
-      for (const pass of fallbackPasswords) {
-        if (pass !== password) {
-          const res = await authClient.signIn.email({ email, password: pass });
-          if (res.data) {
-            data = res.data;
-            error = null;
-            break;
-          }
-        }
-      }
-    }
 
     if (error) {
       myToast.error(error.message || "Check Your Info and Try Again");
@@ -244,9 +269,13 @@ const LogIn = () => {
 
               <Button
                 type="submit"
-                className="mt-1 flex h-10 w-full cursor-pointer items-center justify-center rounded-lg bg-[#050d16] text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#182230] active:scale-[0.99]"
+                disabled={jwtLoading}
+                className="mt-1 flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#050d16] text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#182230] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                LOGIN
+                {jwtLoading ? (
+                  <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                ) : null}
+                {jwtLoading ? "SIGNING IN..." : "LOGIN"}
               </Button>
             </Form>
 

@@ -97,7 +97,6 @@ const ContactPage = () => {
   return (
     <main className="w-full bg-[#eae2d5] py-12 px-4 sm:px-8 lg:px-16">
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-16">
-        {/* Left Column: Contact Info */}
         <div className="flex flex-col">
           <h1 className="font-playfair text-4xl font-bold tracking-tight text-[#090e14] sm:text-5xl lg:text-6xl">
             Get in touch.
@@ -111,9 +110,7 @@ const ContactPage = () => {
 
           <div className="my-6 max-w-md border-t border-[#e2d9cb]" />
 
-          {/* Info list */}
           <div className="flex flex-col gap-6">
-            {/* Location */}
             <div className="flex items-start gap-3">
               <LocationPinIcon />
               <div>
@@ -130,7 +127,6 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Email General */}
             <div className="flex items-start gap-3">
               <MailIcon />
               <div>
@@ -146,7 +142,6 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Author Support */}
             <div className="flex items-start gap-3">
               <SupportIcon />
               <div>
@@ -164,7 +159,6 @@ const ContactPage = () => {
           </div>
         </div>
 
-        {/* Right Column: Contact Form Card */}
         <div className="w-full">
           <div className="w-full rounded-2xl border border-[#e5e5e0] bg-white p-6 shadow-xl sm:p-8">
             {submitted ? (
@@ -188,7 +182,6 @@ const ContactPage = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                {/* Name & Email Row */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold text-[#171717]">
@@ -215,7 +208,6 @@ const ContactPage = () => {
                   </div>
                 </div>
 
-                {/* Subject Dropdown */}
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold text-[#171717]">
                     Subject
@@ -240,7 +232,6 @@ const ContactPage = () => {
                   </div>
                 </div>
 
-                {/* Message */}
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold text-[#171717]">
                     Your Message
@@ -254,7 +245,6 @@ const ContactPage = () => {
                   />
                 </div>
 
-                {/* Submit Button */}
                 <button
                   type="submit"
                   className="mt-2 flex h-10 w-fit cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#050d16] px-6 text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#182230] active:scale-[0.99]"

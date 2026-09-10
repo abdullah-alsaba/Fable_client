@@ -12,6 +12,7 @@ const GENRES = [
   { id: "fantasy", label: "Fantasy" },
   { id: "non-fiction", label: "Non-Fiction" },
   { id: "biography", label: "Biography" },
+  { id: "horror", label: "Horror" },
 ];
 
 export default function BrowseEbooksSidebar() {
@@ -84,7 +85,6 @@ export default function BrowseEbooksSidebar() {
 
       <hr className="border-[#e5e2dc]" />
 
-      {/* Genre Filter */}
       <div className="space-y-3">
         <h3 className="font-playfair text-sm font-bold text-[#090e14]">Genre</h3>
         <div className="space-y-2 text-xs font-medium text-[#252525]">
@@ -117,7 +117,6 @@ export default function BrowseEbooksSidebar() {
 
       <hr className="border-[#e5e2dc]" />
 
-      {/* Price Range Filter */}
       <div className="space-y-3">
         <h3 className="font-playfair text-sm font-bold text-[#090e14]">
           Price Range ($)
@@ -153,7 +152,6 @@ export default function BrowseEbooksSidebar() {
 
       <hr className="border-[#e5e2dc]" />
 
-      {/* Availability Filter */}
       <div className="space-y-3">
         <h3 className="font-playfair text-sm font-bold text-[#090e14]">
           Availability

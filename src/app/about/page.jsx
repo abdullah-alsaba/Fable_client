@@ -65,7 +65,6 @@ const AboutPage = () => {
   return (
     <main className="w-full bg-[#eae2d5] py-12 px-4 sm:px-8 lg:px-16">
       <div className="mx-auto flex max-w-7xl flex-col gap-16 sm:gap-24">
-        {/* Section 1: Hero */}
         <section className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
           <div>
             <h1 className="font-playfair text-3xl font-bold leading-tight tracking-tight text-[#090e14] sm:text-4xl lg:text-5xl">
@@ -91,7 +90,6 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* Section 2: Our Mission */}
         <section className="text-center">
           <h2 className="font-playfair text-2xl font-bold tracking-tight text-[#090e14] sm:text-3xl lg:text-4xl">
             Our Mission
@@ -103,7 +101,6 @@ const AboutPage = () => {
           </p>
 
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Card 1 */}
             <div className="flex flex-col items-start rounded-xl border border-[#e5e5e0] bg-[#fafaf8] p-6 text-left shadow-2xs transition-all hover:bg-white hover:shadow-xs">
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[#eae2d5]/60">
                 <BookIcon />
@@ -119,7 +116,6 @@ const AboutPage = () => {
               </p>
             </div>
 
-            {/* Card 2 */}
             <div className="flex flex-col items-start rounded-xl border border-[#e5e5e0] bg-[#fafaf8] p-6 text-left shadow-2xs transition-all hover:bg-white hover:shadow-xs">
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[#eae2d5]/60">
                 <CompassIcon />
@@ -135,7 +131,6 @@ const AboutPage = () => {
               </p>
             </div>
 
-            {/* Card 3 */}
             <div className="flex flex-col items-start rounded-xl border border-[#e5e5e0] bg-[#fafaf8] p-6 text-left shadow-2xs transition-all hover:bg-white hover:shadow-xs sm:col-span-2 lg:col-span-1">
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[#eae2d5]/60">
                 <QuillIcon />
@@ -153,7 +148,6 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* Section 3: For Readers */}
         <section className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
           <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border border-[#e2d9cb] shadow-sm select-none lg:order-1">
             <Image
@@ -191,7 +185,6 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* Section 4: For Writers */}
         <section className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
           <div>
             <span className="block text-[10px] font-bold uppercase tracking-wider text-[#a2753b]">

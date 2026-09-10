@@ -12,7 +12,7 @@ const genres = [
   { name: "Romance", icon: Heart },
   { name: "Sci-Fi", icon: Rocket },
   { name: "Fantasy", icon: Castle },
-  { name: "Biography", icon: Feather },
+  { name: "Horror", icon: Feather },
 ];
 
 const Genre = () => {
@@ -28,7 +28,7 @@ const Genre = () => {
         Explore Genres
       </motion.h2>
 
-      <div className="mx-auto mt-8 grid max-w-5xl grid-cols-3 gap-4 lg:grid-cols-6">
+      <div className="mx-auto mt-8 grid max-w-5xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {genres.map(({ name, icon: Icon }, index) => (
           <motion.div
             key={name}

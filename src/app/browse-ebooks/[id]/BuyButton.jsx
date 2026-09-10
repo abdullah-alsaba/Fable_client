@@ -1,19 +1,64 @@
 "use client";
 
-import { useState } from "react";
-import { ShoppingCart, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ShoppingCart, Loader2, CheckCircle2 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { myToast } from "@/utils/customToast";
 
 export default function BuyButton({ book }) {
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [alreadyPurchased, setAlreadyPurchased] = useState(false);
+
+  const writerEmail = (book?.writerEmail || "").toLowerCase();
+  const userEmail = (session?.user?.email || "").toLowerCase();
+  const isOwner = Boolean(userEmail && writerEmail && userEmail === writerEmail);
+
+  const isSold =
+    book?.isSold ||
+    book?.sold ||
+    (typeof book?.status === "string" && book.status.toLowerCase() === "sold");
+
+  useEffect(() => {
+    const checkPurchase = async () => {
+      if (!userEmail) {
+        setAlreadyPurchased(false);
+        return;
+      }
+      try {
+        const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
+        const res = await fetch(
+          `${serverUri}/api/purchases?userEmail=${encodeURIComponent(userEmail)}`
+        );
+        const data = await res.json();
+        const bookId = String(book?._id || book?.id || "");
+        const purchased =
+          data.success &&
+          Array.isArray(data.purchases) &&
+          data.purchases.some(
+            (p) =>
+              (p.type || "purchase") === "purchase" &&
+              String(p.ebookId || "") === bookId
+          );
+        setAlreadyPurchased(purchased);
+      } catch {
+        setAlreadyPurchased(false);
+      }
+    };
+
+    checkPurchase();
+  }, [userEmail, book]);
 
   const handleBuy = async () => {
-    // If not logged in, redirect to login
     if (!session?.user) {
       router.push("/login");
+      return;
+    }
+
+    if (isOwner) {
+      myToast.error("You cannot purchase your own ebook.");
       return;
     }
 
@@ -23,6 +68,7 @@ export default function BuyButton({ book }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          type: "purchase",
           bookId: String(book._id || book.id),
           title: book.title,
           price: book.price || 0,
@@ -40,15 +86,51 @@ export default function BuyButton({ book }) {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert("Payment session failed: " + (data.error || "Unknown error"));
+        myToast.error(data.error || "Payment session failed");
       }
     } catch (err) {
-      console.error("Checkout error:", err);
-      alert("Something went wrong. Please try again.");
+      myToast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  if (alreadyPurchased) {
+    return (
+      <button
+        type="button"
+        disabled
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-emerald-700 px-6 text-xs font-semibold uppercase tracking-wider text-white shadow-xs cursor-not-allowed"
+      >
+        <CheckCircle2 size={16} />
+        Already Purchased
+      </button>
+    );
+  }
+
+  if (isOwner) {
+    return (
+      <button
+        type="button"
+        disabled
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-gray-200 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 border border-gray-300 cursor-not-allowed"
+      >
+        Your Own Ebook
+      </button>
+    );
+  }
+
+  if (isSold) {
+    return (
+      <button
+        type="button"
+        disabled
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-gray-200 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 border border-gray-300 cursor-not-allowed"
+      >
+        Item Sold Out
+      </button>
+    );
+  }
 
   return (
     <button

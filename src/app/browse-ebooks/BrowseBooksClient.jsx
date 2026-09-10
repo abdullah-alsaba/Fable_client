@@ -4,10 +4,11 @@ import BookCard from "@/Components/BookCard/BookCard";
 import BrowseEbooksSidebar from "@/Components/BrowseEbooksSidebar/BrowseEbooksSidebar";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import noBooksImg from "@/assets/noBooksFound.png";
 import errorBooksImg from "@/assets/errorBooks.png";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { myToast } from "@/utils/customToast";
 
 const ChevronDownIcon = () => (
   <svg
@@ -36,6 +37,12 @@ export default function BrowseBooksClient({ serverData = {}, initialError = fals
   const limit = serverData.limit || currentParams.limit || 8;
 
   const [searchInput, setSearchInput] = useState(currentParams.search || "");
+
+  useEffect(() => {
+    if (initialError) {
+      myToast.error("Failed to load ebooks");
+    }
+  }, [initialError]);
 
   const updateQueryParams = (newParams) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -203,7 +210,6 @@ export default function BrowseBooksClient({ serverData = {}, initialError = fals
                   ))}
                 </div>
 
-                {/* Server-Side Pagination Controls */}
                 {totalPages > 1 && (
                   <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pt-6 border-t border-[#e2d9cb]">
                     <button
