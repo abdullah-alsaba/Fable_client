@@ -1,142 +1,135 @@
-# 📚 Fable – Ebook Sharing Platform
+# Fable — Ebook Sharing Platform
 
-## Project Overview
+## Overview
 
-Fable is a full-stack digital platform that connects ebook lovers, readers, and collectors with talented independent writers. Readers can browse, discover, purchase, and read original ebooks across multiple genres. Writers can publish and manage their creations after a one-time verification payment, while an admin oversees users, content, and transactions system-wide.
+Fable is a full-stack digital publishing platform that connects readers with independent writers. Readers can browse, purchase, and read original ebooks across a range of genres; writers can publish and manage their work after a one-time verification payment; and administrators oversee users, content, and transactions across the platform.
 
-Built with the **MERN + Next.js stack**, Fable demonstrates advanced web engineering concepts including role-based access control (RBAC), Stripe payment integration, JWT + BetterAuth authentication, interactive charts, Framer Motion animations, and a polished recruiter-friendly UI.
+Built on the **MERN stack with Next.js**, Fable demonstrates production-grade engineering practices, including role-based access control, Stripe payment processing, JWT and BetterAuth authentication, data visualization, and a polished, responsive UI.
 
----
-
-## 🌐 Live Site URL
-
-> **Coming Soon** – Deployed on Vercel. Update this link before submission:
-> `https://your-fable-app.vercel.app`
+**Live site:** [https://fable-nine-ashy.vercel.app](https://fable-nine-ashy.vercel.app)
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 ### Authentication & Security
-- JWT-based authentication (7-day expiry)
-- Email + password registration & login
-- Google OAuth login via BetterAuth
-- Role-based access: User (Reader), Writer, Admin
-- Secure environment variables for all API keys and DB credentials
-- BetterAuth session fallback + JWT token storage
+- JWT-based authentication with 7-day token expiry
+- Email/password registration and login
+- Google OAuth via BetterAuth, with JWT/session fallback
+- Role-based access control for Reader, Writer, and Admin roles
+- Environment-variable management for all API keys and database credentials
 
 ### Home Page
-- Stunning animated hero banner with digital-reading artwork
-- Framer Motion fade-in / stagger animations throughout
-- **Featured Ebooks** (6 randomly picked latest published ebooks via MongoDB `$sample`)
-- **Top Writers** section (top 3 writers sorted by sales)
-- **Ebook Genres** grid (Fiction, Mystery, Romance, Sci-Fi, Fantasy, Horror, etc.) linking to pre-filtered browse
+- Animated hero section with Framer Motion transitions
+- Featured Ebooks: six randomly selected published titles via MongoDB `$sample`
+- Top Writers: top three writers ranked by sales
+- Genre grid (Fiction, Mystery, Romance, Sci-Fi, Fantasy, Horror, and more) linking to pre-filtered browse views
 
-### Browse Ebooks (Public Access)
-- Responsive grid: 2 cols mobile → 3 cols tablet → 4 cols desktop
-- **Search** by title / writer name / genre
-- **Filter** by genre, price range (min–max), availability (in stock / sold)
-- **Sort** by newest, price low→high, price high→low, title A→Z
-- **Pagination** (6–12 items per page with nav controls)
-- Skeleton loaders while fetching, friendly empty-state message
-- Each card shows cover, title, writer, price, and a "Sold" badge if purchased
+### Browse Ebooks (Public)
+- Responsive grid layout (2 columns on mobile, 3 on tablet, 4 on desktop)
+- Search by title, writer name, or genre
+- Filters for genre, price range, and availability
+- Sort by newest, price (ascending/descending), or title
+- Pagination with configurable page size
+- Skeleton loading states and an empty-state message
 
-### Ebook Details Page (Public Preview + Authenticated Actions)
-- High-resolution cover, title, writer (clickable), description, price, genre, status, upload date
-- **Purchase Button** → Stripe Checkout
-  - Auto-disabled if the buyer is the writer themselves
-  - After payment: button becomes "Already Purchased" and full ebook content unlocks
-- **Bookmark** ebooks to save for later (DB-backed bookmarks collection)
-- 404 / Skeleton loader states
+### Ebook Details Page
+- Cover image, title, writer (linked), description, price, genre, status, and upload date
+- Stripe Checkout integration for purchases
+  - Purchase button disabled for the writer's own listings
+  - Post-purchase, the button updates to "Already Purchased" and unlocks full content
+- Bookmarking, backed by a dedicated collection
+- 404 and loading states
 
-### Dashboards – Role-Specific
+### Role-Based Dashboards
 
-#### Reader Dashboard (`/dashboard/user`)
-- Purchase history table (ebook name, writer, price, purchase date, status)
-- Gallery view of purchased ebooks with links to details
-- Profile management view
-- Bookmark gallery page
+**Reader Dashboard** (`/dashboard/user`)
+- Purchase history (title, writer, price, date, status)
+- Gallery of purchased ebooks
+- Profile management
+- Bookmarks
 
-#### Writer Dashboard (`/dashboard/writer`)
-- Manage Ebooks: table of own works with publish / unpublish / edit / delete actions
-- Add / Edit Ebook form (title, full content, price, genre, cover upload to imgBB)
-- Sales History table (ebook title, buyer, date, amount)
-- Bookmark gallery page
+**Writer Dashboard** (`/dashboard/writer`)
+- Ebook management: publish, unpublish, edit, and delete listings
+- Add/edit ebook form with cover image upload via imgBB
+- Sales history (title, buyer, date, amount)
+- Bookmarks
 
-#### Admin Dashboard (`/dashboard/admin`)
-- **Analytics overview cards** – total users, total writers, total ebooks sold, total revenue
-- **Charts** – Monthly sales (bar/line) + Ebooks by genre (pie chart)
-- Manage Users: change role (user / writer / admin) or delete any user
-- Manage All Ebooks: publish / unpublish / delete any ebook
-- View All Transactions: transaction ID, type (purchase / publishing fee), user/writer email, amount, date
+**Admin Dashboard** (`/dashboard/admin`)
+- Analytics overview: total users, writers, ebooks sold, and revenue
+- Charts: monthly sales and ebook distribution by genre
+- User management: role assignment and account removal
+- Ebook management: publish, unpublish, or delete any listing
+- Transaction log: ID, type, associated user, amount, and date
 
-### Payment & Content
-- **Stripe Checkout** integration for ebook purchases + writer publishing fee
-- **imgBB** API for storing ebook cover images and profile pictures
-- After successful purchase: ebook marked as sold → purchase record stored → dummy email notification (console log)
+### Payments & Content
+- Stripe Checkout for ebook purchases and writer verification fees
+- imgBB integration for cover and profile image storage
+- Post-purchase workflow: ebook marked as sold, purchase record created, notification logged
 
-### UX / System
-- Global loading spinner, skeleton loaders for cards and table rows
-- Custom 404 page with illustration + "Go Home" button
-- Runtime Error Boundary fallback UI ("Something went wrong. Reload.")
-- Dark mode toggle (next-themes) persisted in localStorage
-- Fully responsive navbar with hamburger menu, active-route highlighting, and role-aware dashboard link
-- Beautiful newsletter placeholder UI in footer
+### UX & Reliability
+- Global loading spinner and skeleton loaders
+- Custom 404 page
+- Error boundary with fallback UI
+- Dark mode via next-themes, persisted in local storage
+- Responsive navigation with active-route highlighting and role-aware dashboard links
+- Newsletter signup placeholder in the footer
 
 ---
 
-## 🛠️ NPM Packages Used
+## Tech Stack
 
-### Frontend (Next.js + React)
-- **next** – React Framework (App Router)
-- **react** **react-dom** – UI Runtime
-- **@heroui/react** – Modern component library (Card, Button, etc.)
-- **better-auth** – Secure authentication + Google OAuth
-- **next-themes** – Dark / light mode with persistence
-- **framer-motion** – Smooth animations and page transitions
-- **lucide-react** – Beautiful, consistent SVG icons
-- **recharts** – Analytics charts (monthly sales + genre pie)
-- **stripe** – Server-side Stripe session creation
-- **@stripe/react-stripe-js** **@stripe/stripe-js** – Client-side Stripe helpers
-- **@imgbb/imgbb** (axios-based upload) – imgBB image hosting API
-- **axios** – HTTP client (cover-image uploads)
-- **clsx** **tailwind-merge** – Class-name composition utilities
-- **sonner** / custom toast – API error toasts
-- **jsonwebtoken** – JWT creation & verification helpers
-- **bcryptjs** – Password hashing (server-compatible client typing)
-- **tailwindcss** **postcss** **autoprefixer** – Tailwind CSS v3
-- **@tailwindcss/typography** – Beautiful prose for ebook content
+### Frontend (Next.js / React)
+| Package | Purpose |
+|---|---|
+| `next`, `react`, `react-dom` | Application framework and UI runtime |
+| `@heroui/react` | Component library |
+| `better-auth` | Authentication, including Google OAuth |
+| `next-themes` | Dark/light mode persistence |
+| `framer-motion` | Animation and page transitions |
+| `lucide-react` | Icon set |
+| `recharts` | Analytics charts |
+| `stripe`, `@stripe/react-stripe-js`, `@stripe/stripe-js` | Payment processing |
+| `axios` | HTTP client for image uploads |
+| `clsx`, `tailwind-merge` | Class-name composition |
+| `sonner` | Toast notifications |
+| `jsonwebtoken`, `bcryptjs` | Token handling and password hashing (client-side typing) |
+| `tailwindcss`, `postcss`, `autoprefixer` | Styling |
+| `@tailwindcss/typography` | Typography for ebook content |
 
-### Backend (Node.js + Express + MongoDB)
-- **express** – HTTP Server
-- **cors** – Production-friendly CORS (origin-allow list)
-- **dotenv** – Environment variable management
-- **mongodb** – Official MongoDB Node Driver
-- **jsonwebtoken** – JWT auth middleware (7-day tokens)
-- **bcryptjs** – Password hashing & comparison for email/password login
-- **stripe** – Server-side Stripe payment verification helpers
-- **nanoid** (if present) – Unique ID generation
-
----
-
-## 📌 Submission Credentials
-
-| Role   | Email               | Password      |
-|--------|---------------------|---------------|
-| Admin  | admin@fable.com     | Admin@123     |
-
-> The admin account is seeded automatically the first time the server starts if it does not already exist in the database.
+### Backend (Node.js / Express / MongoDB)
+| Package | Purpose |
+|---|---|
+| `express` | HTTP server |
+| `cors` | Origin-restricted CORS policy |
+| `dotenv` | Environment variable management |
+| `mongodb` | Official MongoDB driver |
+| `jsonwebtoken` | Auth middleware |
+| `bcryptjs` | Password hashing and comparison |
+| `stripe` | Server-side payment verification |
+| `nanoid` | Unique ID generation (where applicable) |
 
 ---
 
-## 🚀 Deployment Notes
+## Demo Credentials
 
-- **Frontend**: Next.js App Router → deploy on Vercel
-  - Set all `NEXT_PUBLIC_*` variables in Vercel project settings
-  - Enable rewrites for `api/auth/*` if proxying BetterAuth
-- **Backend**: Express.js → deploy on Render / Railway / Vercel Edge
-  - Set `MONGODB_URI`, `JWT_SECRET`, `CLIENT_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
-  - Whitelist hosting IP in MongoDB Atlas Network Access (or use 0.0.0.0/0 for demo)
-- **MongoDB Atlas**: Ensure cluster has Network Access + Database Access configured
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@fable.com | Admin@123 |
 
-Built with ❤️ for digital literature enthusiasts.
+The admin account is seeded automatically on first server start if it does not already exist in the database.
+
+---
+
+## Deployment
+
+**Frontend** (Next.js App Router → Vercel)
+- Configure all `NEXT_PUBLIC_*` environment variables in project settings
+- Enable rewrites for `api/auth/*` if proxying BetterAuth requests
+
+**Backend** (Express → Render, Railway, or Vercel Edge)
+- Set `MONGODB_URI`, `JWT_SECRET`, `CLIENT_URL`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`
+- Whitelist the hosting provider's IP in MongoDB Atlas Network Access (or allow `0.0.0.0/0` for demo purposes)
+
+**Database** (MongoDB Atlas)
+- Confirm Network Access and Database Access are properly configured before deployment
