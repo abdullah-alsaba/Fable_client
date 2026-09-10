@@ -6,7 +6,7 @@ export default function EBookDetailLoading() {
         
         <div className="overflow-hidden rounded-2xl border border-[#e5e2dc] bg-white p-6 sm:p-10 shadow-xs">
           <div className="flex flex-col md:flex-row gap-8 items-start">
-            <div className="aspect-[3/4] w-full max-w-[260px] mx-auto md:mx-0 shrink-0 rounded-xl bg-[#e5e2dc] animate-pulse" />
+            <div className="aspect-3/4 w-full max-w-65 mx-auto md:mx-0 shrink-0 rounded-xl bg-[#e5e2dc] animate-pulse" />
             
             <div className="flex-1 space-y-4 w-full">
               <div className="h-4 w-24 rounded bg-[#e5e2dc] animate-pulse" />
