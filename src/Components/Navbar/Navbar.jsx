@@ -117,7 +117,7 @@ const Navbar = () => {
               <>
                 <Link
                   href="/login"
-                  className="px-3.5 py-1.5 text-sm font-medium text-[#090e14] dark:text-[#e6e6e6] transition-colors hover:text-[#a2753b] dark:hover:text-[#f0b465]"
+                  className="flex h-9 items-center justify-center rounded-lg border border-[#090e14] dark:border-[#f0b465] px-4 text-xs font-semibold uppercase tracking-wider text-[#090e14] dark:text-[#f0b465] transition-all hover:bg-[#090e14] hover:text-white dark:hover:bg-[#f0b465] dark:hover:text-[#0b1020] active:scale-[0.99]"
                 >
                   Login
                 </Link>
@@ -141,7 +141,7 @@ const Navbar = () => {
             ) : (
               <Link
                 href="/login"
-                className="text-xs font-semibold text-[#090e14] dark:text-[#e6e6e6] hover:text-[#a2753b] dark:hover:text-[#f0b465]"
+                className="flex h-8 items-center justify-center rounded-lg border border-[#090e14] dark:border-[#f0b465] px-3 text-[10px] font-semibold uppercase tracking-wider text-[#090e14] dark:text-[#f0b465] transition-all hover:bg-[#090e14] hover:text-white dark:hover:bg-[#f0b465] dark:hover:text-[#0b1020] active:scale-[0.99]"
               >
                 Sign In
               </Link>
