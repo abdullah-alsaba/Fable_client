@@ -11,7 +11,6 @@ export default async function EBookDetailsPage({ params }) {
   const bookId = resolvedParams?.id;
   const book = await getEBookById(bookId);
 
-  // Error State - Ebook not found for invalid ID
   if (!book) {
     return (
       <div className="min-h-screen bg-[#eae2d5] py-16 px-4 sm:px-6 lg:px-12 flex flex-col items-center justify-center text-center">
@@ -39,7 +38,6 @@ export default async function EBookDetailsPage({ params }) {
     );
   }
 
-  // Status computation (Available vs Sold)
   const isSold =
     book.isSold ||
     book.sold ||
@@ -48,7 +46,6 @@ export default async function EBookDetailsPage({ params }) {
 
   const statusLabel = isSold ? "Sold" : "Available";
 
-  // Date uploaded formatting
   const rawDate = book.dateUploaded || book.createdAt || book.uploadedDate || book.date;
   const formattedDate = rawDate
     ? new Date(rawDate).toLocaleDateString("en-US", {
@@ -64,7 +61,6 @@ export default async function EBookDetailsPage({ params }) {
   return (
     <div className="min-h-screen bg-[#eae2d5] py-8 sm:py-12 px-4 sm:px-6 lg:px-12">
       <div className="mx-auto max-w-4xl space-y-6">
-        {/* Navigation Breadcrumb */}
         <Link
           href="/browse-ebooks"
           className="inline-flex items-center gap-2 text-xs font-semibold text-[#855210] hover:text-[#5f390c] transition-colors"
@@ -73,11 +69,8 @@ export default async function EBookDetailsPage({ params }) {
           Back to Browse Ebooks
         </Link>
 
-        {/* Main Details Card */}
         <div className="overflow-hidden rounded-2xl border border-[#e5e2dc] bg-white p-6 sm:p-10 shadow-xs">
           <div className="flex flex-col md:flex-row gap-8 items-start">
-            
-            {/* High-resolution cover image (from imgBB or external CDN) */}
             <div className="relative aspect-3/4 w-full max-w-65 mx-auto md:mx-0 shrink-0 overflow-hidden rounded-xl bg-[#f5f4f0] border border-[#e5e2dc] shadow-sm">
               {book.coverImage ? (
                 <Image
@@ -96,7 +89,6 @@ export default async function EBookDetailsPage({ params }) {
                 </div>
               )}
 
-              {/* Status Badge Over Image */}
               <div
                 className={`absolute top-3 right-3 z-10 flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-xs ${
                   isSold ? "bg-red-900/90" : "bg-emerald-800/90"
@@ -107,17 +99,13 @@ export default async function EBookDetailsPage({ params }) {
               </div>
             </div>
 
-            {/* Book Details Content */}
             <div className="flex-1 space-y-4 text-left w-full">
-              
-              {/* Genre & Status Header */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#f0ece3] pb-3">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f6f3eb] px-3 py-1 font-playfair text-xs font-bold uppercase tracking-widest text-[#855210]">
                   <Tag size={12} />
                   {book.genre || "General"}
                 </span>
 
-                {/* Status Indicator */}
                 <div className="flex items-center gap-1.5 text-xs font-medium">
                   <span className="text-[#77736d]">Status:</span>
                   <span
@@ -142,12 +130,10 @@ export default async function EBookDetailsPage({ params }) {
                 </div>
               </div>
 
-              {/* Title */}
               <h1 className="font-playfair text-2xl sm:text-3xl lg:text-4xl font-bold text-[#090e14] leading-tight">
                 {book.title}
               </h1>
 
-              {/* Writer Name (Clickable link to writer's profile or ebook list) */}
               <div className="flex items-center gap-2 font-sans text-sm text-[#77736d]">
                 <User size={16} className="text-[#855210]" />
                 <span>Written by</span>
@@ -160,14 +146,12 @@ export default async function EBookDetailsPage({ params }) {
                 </Link>
               </div>
 
-              {/* Date Uploaded */}
               <div className="flex items-center gap-2 font-sans text-xs text-[#77736d]">
                 <Calendar size={14} className="text-[#a09c95]" />
                 <span>Date Uploaded:</span>
                 <span className="font-medium text-[#252525]">{formattedDate}</span>
               </div>
 
-              {/* Price Banner */}
               <div className="py-3 px-4 rounded-xl bg-[#fcfbfa] border border-[#e5e2dc] flex items-center justify-between">
                 <div>
                   <p className="text-[11px] font-medium uppercase tracking-wider text-[#77736d]">Price</p>
@@ -188,7 +172,6 @@ export default async function EBookDetailsPage({ params }) {
                 </div>
               </div>
 
-              {/* Description (Preview of content) */}
               <div className="space-y-2 pt-2">
                 <h3 className="font-playfair text-sm font-bold uppercase tracking-wider text-[#090e14]">
                   Description & Content Preview
@@ -199,7 +182,6 @@ export default async function EBookDetailsPage({ params }) {
                 </p>
               </div>
 
-              {/* Content Excerpt if available */}
               {book.content && (
                 <div className="mt-4 p-4 rounded-lg bg-[#f8f7f4] border border-[#e8e4dc] space-y-1.5">
                   <h4 className="font-playfair text-xs font-bold text-[#855210] uppercase tracking-wider flex items-center gap-1.5">
@@ -212,7 +194,6 @@ export default async function EBookDetailsPage({ params }) {
                 </div>
               )}
 
-              {/* Action Buttons */}
               <div className="pt-4 flex flex-wrap gap-4 items-center">
                 {isSold ? (
                   <button
@@ -230,7 +211,7 @@ export default async function EBookDetailsPage({ params }) {
                   </Link>
                 )}
 
-                <BookmarkButton />
+                <BookmarkButton book={book} />
               </div>
 
             </div>

@@ -50,7 +50,8 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { data: session, isPending } = useSession();
 
-  const userRole = session?.user?.role || "user";
+  const rawRole = session?.user?.role || "user";
+  const userRole = rawRole === "reader" ? "user" : rawRole;
   const dashboardHref = session?.user ? `/dashboard/${userRole}` : "/dashboard";
 
   const navLinks = [
@@ -68,7 +69,6 @@ const Navbar = () => {
     <>
       <header className="sticky top-0 z-50 w-full border-b border-[#e2d9cb] bg-[#eae2d5]/95 backdrop-blur-md transition-all">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-8 lg:px-12">
-          {/* Mobile Hamburger Button (Left) */}
           <div className="flex items-center md:hidden">
             <button
               type="button"
@@ -80,7 +80,6 @@ const Navbar = () => {
             </button>
           </div>
 
-          {/* Brand Logo (Center on Mobile, Left on Desktop) */}
           <Link
             href="/"
             className="font-playfair text-2xl font-bold tracking-tight text-[#090e14] transition-opacity hover:opacity-90 sm:text-3xl"
@@ -88,7 +87,6 @@ const Navbar = () => {
             Fable
           </Link>
 
-          {/* Desktop Navigation Links */}
           <nav className="hidden items-center gap-8 md:flex">
             {navLinks.map((link) => {
               const active = isActive(link.href);
@@ -108,7 +106,6 @@ const Navbar = () => {
             })}
           </nav>
 
-          {/* Desktop Auth / Profile Section */}
           <div className="hidden items-center gap-3.5 md:flex min-h-9">
             {isPending ? (
               <ProfileSkeleton />
@@ -133,7 +130,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Right Auth / Profile Section */}
           <div className="flex items-center md:hidden min-h-9">
             {isPending ? (
               <ProfileSkeleton />
@@ -150,7 +146,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Slide-down Menu */}
         {mobileMenuOpen && (
           <div className="border-t border-[#e2d9cb] bg-[#eae2d5] px-6 py-4 md:hidden">
             <div className="flex flex-col gap-3">

@@ -7,13 +7,12 @@ import {
   BookOpen,
   LayoutHeader,
 } from "@gravity-ui/icons";
-import { Avatar, Dropdown } from "@heroui/react";
+import { Dropdown } from "@heroui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 
 export function ProfileDropdown({ user }) {
-   
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -27,21 +26,33 @@ export function ProfileDropdown({ user }) {
     }
   };
 
-  const userImage = user?.image || user?.avatar || user?.profilePicture;
+  const userImage =
+    user?.image ||
+    user?.avatar ||
+    user?.picture ||
+    user?.profilePicture ||
+    user?.photoURL;
+
   const nameInitial = user?.name
     ? user.name.trim().charAt(0).toUpperCase()
     : "U";
-  const userRole = user?.role || "user";
-  const dashboardPath = userRole ? `/dashboard/${userRole}` : "/dashboard";
+
+  const rawRole = user?.role || "user";
+  const userRole = rawRole === "reader" ? "user" : rawRole;
+  const dashboardPath = `/dashboard/${userRole}`;
 
   return (
     <Dropdown>
       <Dropdown.Trigger className="rounded-full cursor-pointer outline-none transition-transform active:scale-95">
         {userImage ? (
-          <Avatar size="sm" className="border border-[#dbdad6] shadow-xs">
-            <Avatar.Image alt={user?.name || "User Avatar"} src={userImage} />
-            <Avatar.Fallback>{nameInitial}</Avatar.Fallback>
-          </Avatar>
+          <div className="h-9 w-9 rounded-full overflow-hidden border border-[#dbdad6] shadow-xs">
+            <img
+              src={userImage}
+              alt={user?.name || "User Avatar"}
+              referrerPolicy="no-referrer"
+              className="h-full w-full object-cover"
+            />
+          </div>
         ) : (
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#050d16] font-sans text-sm font-bold text-white shadow-xs border border-[#050d16]">
             {nameInitial}
@@ -50,13 +61,16 @@ export function ProfileDropdown({ user }) {
       </Dropdown.Trigger>
 
       <Dropdown.Popover className="w-56 rounded-xl border border-[#e5e2dc] bg-white p-2 shadow-md">
-        {/* User Info Header */}
         <div className="flex items-center gap-2.5 px-2 py-2 border-b border-[#f0ece3] mb-1">
           {userImage ? (
-            <Avatar size="sm">
-              <Avatar.Image alt={user?.name || "User"} src={userImage} />
-              <Avatar.Fallback>{nameInitial}</Avatar.Fallback>
-            </Avatar>
+            <div className="h-8 w-8 shrink-0 rounded-full overflow-hidden border border-[#dbdad6]">
+              <img
+                src={userImage}
+                alt={user?.name || "User"}
+                referrerPolicy="no-referrer"
+                className="h-full w-full object-cover"
+              />
+            </div>
           ) : (
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#855210] font-sans text-xs font-bold text-white shadow-xs">
               {nameInitial}
@@ -72,7 +86,6 @@ export function ProfileDropdown({ user }) {
           </div>
         </div>
 
-      
         <div className="py-1 space-y-0.5 text-xs font-medium text-[#252525]">
           <Link
             href="/"
