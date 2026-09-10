@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getEBookById } from "@/utils/data";
 import { User, Calendar, Tag, BookOpen, AlertCircle, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import BookmarkButton from "./BookmarkButton";
+import BuyButton from "./BuyButton";
 
 export const dynamic = "force-dynamic";
 
@@ -203,12 +204,7 @@ export default async function EBookDetailsPage({ params }) {
                     Item Sold Out
                   </button>
                 ) : (
-                  <Link
-                    href="/login"
-                    className="inline-flex h-11 items-center justify-center rounded-lg bg-[#050d16] px-6 text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#182230] active:scale-[0.99]"
-                  >
-                    Get This Ebook
-                  </Link>
+                  <BuyButton book={book} />
                 )}
 
                 <BookmarkButton book={book} />
