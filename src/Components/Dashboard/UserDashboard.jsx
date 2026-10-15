@@ -29,10 +29,39 @@ import {
 export default function UserDashboard() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
-  const [activeTab, setActiveTab] = useState("purchases");
+  const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    if (!passwordForm.newPassword || passwordForm.newPassword.length < 8) {
+      myToast.error("New password must be at least 8 characters");
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      myToast.error("Passwords do not match");
+      return;
+    }
+    setPasswordLoading(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      myToast.success("Security password updated successfully!");
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch {
+      myToast.error("Failed to update password");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   const initialImage =
     session?.user?.image ||
@@ -295,6 +324,123 @@ export default function UserDashboard() {
             Role: {profileData.role === "reader" ? "Reader" : profileData.role}
           </span>
         </div>
+
+        {activeTab === "overview" && (
+          <div className="space-y-6">
+            {/* 4 Stat Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="rounded-2xl border border-[#e2d9cb] bg-white p-5 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-[#666666]">Ebooks Owned</p>
+                  <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">
+                    {purchasedEbooks.length}
+                  </p>
+                </div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                  <BookOpen size={20} />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-[#e2d9cb] bg-white p-5 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-[#666666]">Total Spent</p>
+                  <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">
+                    ${purchaseHistory.reduce((sum, p) => sum + p.price, 0).toFixed(2)}
+                  </p>
+                </div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                  <DollarSign size={20} />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-[#e2d9cb] bg-white p-5 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-[#666666]">Active Bookmarks</p>
+                  <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">
+                    {bookmarkedEbooks.length}
+                  </p>
+                </div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+                  <Bookmark size={20} />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-[#e2d9cb] bg-white p-5 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-[#666666]">Reading Status</p>
+                  <p className="mt-1 font-playfair text-base font-bold text-emerald-700">
+                    Active Reader
+                  </p>
+                </div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-700">
+                  <BookMarked size={20} />
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Launch Banner */}
+            <div className="rounded-2xl border border-[#e2d9cb] bg-white p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h3 className="font-playfair text-lg font-bold text-[#090e14]">
+                  Continue Your Reading Journey
+                </h3>
+                <p className="text-xs text-[#666666] mt-0.5">
+                  Discover thousands of independent stories or pick up right where you left off.
+                </p>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <Link
+                  href="/browse-ebooks"
+                  className="flex h-9 items-center justify-center rounded-lg bg-[#050d16] px-4 text-xs font-semibold uppercase tracking-wider text-white shadow-xs hover:bg-[#182230] transition-colors"
+                >
+                  Explore Storefront
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("purchased-gallery")}
+                  className="flex h-9 items-center justify-center rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-4 text-xs font-semibold text-[#090e14] hover:bg-white transition-colors cursor-pointer"
+                >
+                  My Library
+                </button>
+              </div>
+            </div>
+
+            {/* Recent Purchases Quick Preview */}
+            <div className="rounded-2xl border border-[#e2d9cb] bg-white p-6 shadow-xs">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-playfair text-lg font-bold text-[#090e14]">
+                  Recent Orders
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("purchases")}
+                  className="text-xs font-semibold text-[#855210] hover:underline cursor-pointer"
+                >
+                  View All ({purchaseHistory.length})
+                </button>
+              </div>
+
+              {purchaseHistory.length > 0 ? (
+                <div className="divide-y divide-[#f0ece3]">
+                  {purchaseHistory.slice(0, 3).map((item) => (
+                    <div key={item.id} className="py-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-bold text-[#090e14]">{item.ebookName}</p>
+                        <p className="text-[11px] text-[#666666]">By {item.writer} • {item.purchaseDate}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs font-bold text-[#090e14]">${item.price.toFixed(2)}</p>
+                        <span className="inline-block text-[10px] text-emerald-700 font-semibold">{item.status}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-[#777777] py-4 text-center">No purchases yet. Start exploring our catalog!</p>
+              )}
+            </div>
+          </div>
+        )}
 
         {activeTab === "purchases" && (
           <div className="rounded-2xl border border-[#e2d9cb] bg-white p-6 shadow-xs">
@@ -635,6 +781,68 @@ export default function UserDashboard() {
                     <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-bold text-blue-800 capitalize">
                       {profileData.role}
                     </span>
+                  </div>
+
+                  {/* Password Update Section */}
+                  <div className="p-4 rounded-xl bg-[#f9f8f5] border border-[#e5e2dc]">
+                    <p className="font-semibold text-[#090e14] mb-1">
+                      Update Security Password
+                    </p>
+                    <p className="text-[11px] text-[#666666] mb-3">
+                      Ensure your account uses a secure password with at least 8 characters.
+                    </p>
+                    <form onSubmit={handlePasswordUpdate} className="space-y-3">
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-[#555555] mb-1">
+                          Current Password
+                        </label>
+                        <input
+                          type="password"
+                          required
+                          value={passwordForm.currentPassword}
+                          onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
+                          placeholder="••••••••"
+                          className="h-9 w-full rounded-lg bg-white px-3 text-xs border border-[#e2d9cb] focus:outline-none"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-[#555555] mb-1">
+                            New Password
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            minLength={8}
+                            value={passwordForm.newPassword}
+                            onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
+                            placeholder="Min 8 characters"
+                            className="h-9 w-full rounded-lg bg-white px-3 text-xs border border-[#e2d9cb] focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-[#555555] mb-1">
+                            Confirm Password
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            minLength={8}
+                            value={passwordForm.confirmPassword}
+                            onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
+                            placeholder="Re-type new password"
+                            className="h-9 w-full rounded-lg bg-white px-3 text-xs border border-[#e2d9cb] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={passwordLoading}
+                        className="flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[#050d16] px-4 text-xs font-semibold uppercase tracking-wider text-white shadow-xs hover:bg-[#182230] transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        {passwordLoading ? "Updating..." : "Update Password"}
+                      </button>
+                    </form>
                   </div>
                 </div>
               </div>

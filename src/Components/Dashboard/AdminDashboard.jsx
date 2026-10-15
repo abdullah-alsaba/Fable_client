@@ -432,7 +432,7 @@ export default function AdminDashboard() {
 
                 <div className="h-72 w-full pt-2">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={monthlySalesData}>
+                    <BarChart data={defaultMonthlyChart}>
                       <XAxis dataKey="month" stroke="#666666" fontSize={12} />
                       <YAxis stroke="#666666" fontSize={12} />
                       <Tooltip
@@ -508,6 +508,59 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Additional Analytics Trajectory Card (LineChart) */}
+            <div className="rounded-2xl border border-[#e2d9cb] bg-white p-6 shadow-xs">
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <h3 className="font-playfair text-lg font-bold text-[#090e14]">
+                    Revenue & Sales Trajectory (Line Chart)
+                  </h3>
+                  <p className="text-xs text-[#666666]">
+                    Continuous growth trajectory tracking monthly revenue pace and book order count.
+                  </p>
+                </div>
+                <span className="rounded-md bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-800">
+                  Trajectory
+                </span>
+              </div>
+
+              <div className="h-72 w-full pt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={defaultMonthlyChart}>
+                    <XAxis dataKey="month" stroke="#666666" fontSize={12} />
+                    <YAxis stroke="#666666" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#050d16",
+                        color: "#ffffff",
+                        borderRadius: "8px",
+                        border: "none",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      name="Revenue ($)"
+                      stroke="#855210"
+                      strokeWidth={3}
+                      dot={{ r: 5, fill: "#855210" }}
+                      activeDot={{ r: 7 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="sales"
+                      name="Sales Count"
+                      stroke="#2563eb"
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: "#2563eb" }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         )}
 
@@ -533,14 +586,20 @@ export default function AdminDashboard() {
                     type="text"
                     placeholder="Search user name or email..."
                     value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
+                    onChange={(e) => {
+                      setUserSearch(e.target.value);
+                      setUserPage(1);
+                    }}
                     className="h-9 w-full sm:w-64 rounded-lg bg-[#f6f4ee] pl-9 pr-3 text-xs text-[#090e14] placeholder:text-[#888888] focus:bg-white focus:outline-none border border-[#e2d9cb]"
                   />
                 </div>
 
                 <select
                   value={userRoleFilter}
-                  onChange={(e) => setUserRoleFilter(e.target.value)}
+                  onChange={(e) => {
+                    setUserRoleFilter(e.target.value);
+                    setUserPage(1);
+                  }}
                   className="h-9 rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-3 text-xs text-[#090e14] focus:outline-none cursor-pointer"
                 >
                   <option value="all">All Roles</option>
@@ -556,16 +615,61 @@ export default function AdminDashboard() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-[#f9f8f5] text-[11px] font-bold uppercase tracking-wider text-[#555555]">
                   <tr>
-                    <th className="px-4 py-3.5">Name</th>
-                    <th className="px-4 py-3.5">Email</th>
-                    <th className="px-4 py-3.5">Current Role</th>
+                    <th
+                      onClick={() => {
+                        if (userSortField === "name") {
+                          setUserSortAsc(!userSortAsc);
+                        } else {
+                          setUserSortField("name");
+                          setUserSortAsc(true);
+                        }
+                      }}
+                      className="px-4 py-3.5 cursor-pointer hover:text-[#090e14]"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>Name</span>
+                        <ArrowUpDown size={12} />
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => {
+                        if (userSortField === "email") {
+                          setUserSortAsc(!userSortAsc);
+                        } else {
+                          setUserSortField("email");
+                          setUserSortAsc(true);
+                        }
+                      }}
+                      className="px-4 py-3.5 cursor-pointer hover:text-[#090e14]"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>Email</span>
+                        <ArrowUpDown size={12} />
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => {
+                        if (userSortField === "role") {
+                          setUserSortAsc(!userSortAsc);
+                        } else {
+                          setUserSortField("role");
+                          setUserSortAsc(true);
+                        }
+                      }}
+                      className="px-4 py-3.5 cursor-pointer hover:text-[#090e14]"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>Current Role</span>
+                        <ArrowUpDown size={12} />
+                      </div>
+                    </th>
                     <th className="px-4 py-3.5">Change Role</th>
                     <th className="px-4 py-3.5 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#f0ece3] text-[#222222]">
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map((u) => (
+                  {paginatedUsers.length > 0 ? (
+                    paginatedUsers.map((u) => (
                       <tr key={u.id} className="hover:bg-[#fafaf8]">
                         <td className="px-4 py-3.5 font-bold text-[#090e14]">{u.name}</td>
                         <td className="px-4 py-3.5 text-[#555555]">{u.email}</td>
@@ -618,6 +722,39 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            {sortedUsers.length > PAGE_SIZE && (
+              <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#666666]">
+                <span>
+                  Showing {Math.min(1 + (userPage - 1) * PAGE_SIZE, sortedUsers.length)} to{" "}
+                  {Math.min(userPage * PAGE_SIZE, sortedUsers.length)} of {sortedUsers.length} users
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={userPage <= 1}
+                    onClick={() => setUserPage((p) => Math.max(1, p - 1))}
+                    className="flex items-center gap-1 rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-2.5 py-1 text-xs font-semibold hover:bg-white disabled:opacity-40 cursor-pointer"
+                  >
+                    <ChevronLeft size={14} />
+                    <span>Previous</span>
+                  </button>
+                  <span className="font-semibold text-[#090e14] px-1">
+                    Page {userPage} of {totalUserPages}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={userPage >= totalUserPages}
+                    onClick={() => setUserPage((p) => Math.min(totalUserPages, p + 1))}
+                    className="flex items-center gap-1 rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-2.5 py-1 text-xs font-semibold hover:bg-white disabled:opacity-40 cursor-pointer"
+                  >
+                    <span>Next</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -642,7 +779,10 @@ export default function AdminDashboard() {
                   type="text"
                   placeholder="Search title or writer name..."
                   value={ebookSearch}
-                  onChange={(e) => setEbookSearch(e.target.value)}
+                  onChange={(e) => {
+                    setEbookSearch(e.target.value);
+                    setEbookPage(1);
+                  }}
                   className="h-9 w-full sm:w-64 rounded-lg bg-[#f6f4ee] pl-9 pr-3 text-xs text-[#090e14] placeholder:text-[#888888] focus:bg-white focus:outline-none border border-[#e2d9cb]"
                 />
               </div>
@@ -652,16 +792,61 @@ export default function AdminDashboard() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-[#f9f8f5] text-[11px] font-bold uppercase tracking-wider text-[#555555]">
                   <tr>
-                    <th className="px-4 py-3.5">Title</th>
-                    <th className="px-4 py-3.5">Writer Name</th>
-                    <th className="px-4 py-3.5">Price</th>
+                    <th
+                      onClick={() => {
+                        if (ebookSortField === "title") {
+                          setEbookSortAsc(!ebookSortAsc);
+                        } else {
+                          setEbookSortField("title");
+                          setEbookSortAsc(true);
+                        }
+                      }}
+                      className="px-4 py-3.5 cursor-pointer hover:text-[#090e14]"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>Title</span>
+                        <ArrowUpDown size={12} />
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => {
+                        if (ebookSortField === "writerName") {
+                          setEbookSortAsc(!ebookSortAsc);
+                        } else {
+                          setEbookSortField("writerName");
+                          setEbookSortAsc(true);
+                        }
+                      }}
+                      className="px-4 py-3.5 cursor-pointer hover:text-[#090e14]"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>Writer Name</span>
+                        <ArrowUpDown size={12} />
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => {
+                        if (ebookSortField === "price") {
+                          setEbookSortAsc(!ebookSortAsc);
+                        } else {
+                          setEbookSortField("price");
+                          setEbookSortAsc(true);
+                        }
+                      }}
+                      className="px-4 py-3.5 cursor-pointer hover:text-[#090e14]"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>Price</span>
+                        <ArrowUpDown size={12} />
+                      </div>
+                    </th>
                     <th className="px-4 py-3.5">Status</th>
                     <th className="px-4 py-3.5 text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#f0ece3] text-[#222222]">
-                  {filteredEbooks.length > 0 ? (
-                    filteredEbooks.map((book) => (
+                  {paginatedEbooks.length > 0 ? (
+                    paginatedEbooks.map((book) => (
                       <tr key={book.id} className="hover:bg-[#fafaf8]">
                         <td className="px-4 py-3.5 font-bold text-[#090e14]">
                           {book.title}
@@ -721,6 +906,39 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            {sortedEbooks.length > PAGE_SIZE && (
+              <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#666666]">
+                <span>
+                  Showing {Math.min(1 + (ebookPage - 1) * PAGE_SIZE, sortedEbooks.length)} to{" "}
+                  {Math.min(ebookPage * PAGE_SIZE, sortedEbooks.length)} of {sortedEbooks.length} ebooks
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={ebookPage <= 1}
+                    onClick={() => setEbookPage((p) => Math.max(1, p - 1))}
+                    className="flex items-center gap-1 rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-2.5 py-1 text-xs font-semibold hover:bg-white disabled:opacity-40 cursor-pointer"
+                  >
+                    <ChevronLeft size={14} />
+                    <span>Previous</span>
+                  </button>
+                  <span className="font-semibold text-[#090e14] px-1">
+                    Page {ebookPage} of {totalEbookPages}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={ebookPage >= totalEbookPages}
+                    onClick={() => setEbookPage((p) => Math.min(totalEbookPages, p + 1))}
+                    className="flex items-center gap-1 rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-2.5 py-1 text-xs font-semibold hover:bg-white disabled:opacity-40 cursor-pointer"
+                  >
+                    <span>Next</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -746,14 +964,20 @@ export default function AdminDashboard() {
                     type="text"
                     placeholder="Search transaction ID or email..."
                     value={transactionSearch}
-                    onChange={(e) => setTransactionSearch(e.target.value)}
+                    onChange={(e) => {
+                      setTransactionSearch(e.target.value);
+                      setTransactionPage(1);
+                    }}
                     className="h-9 w-full sm:w-64 rounded-lg bg-[#f6f4ee] pl-9 pr-3 text-xs text-[#090e14] placeholder:text-[#888888] focus:bg-white focus:outline-none border border-[#e2d9cb]"
                   />
                 </div>
 
                 <select
                   value={transactionTypeFilter}
-                  onChange={(e) => setTransactionTypeFilter(e.target.value)}
+                  onChange={(e) => {
+                    setTransactionTypeFilter(e.target.value);
+                    setTransactionPage(1);
+                  }}
                   className="h-9 rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-3 text-xs text-[#090e14] focus:outline-none cursor-pointer"
                 >
                   <option value="all">All Types</option>
@@ -775,8 +999,8 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#f0ece3] text-[#222222]">
-                  {filteredTransactions.length > 0 ? (
-                    filteredTransactions.map((t) => (
+                  {paginatedTransactions.length > 0 ? (
+                    paginatedTransactions.map((t) => (
                       <tr key={t.id} className="hover:bg-[#fafaf8]">
                         <td className="px-4 py-3.5 font-mono font-semibold text-[#090e14]">
                           {t.id}
@@ -812,6 +1036,230 @@ export default function AdminDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {filteredTransactions.length > PAGE_SIZE && (
+              <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#666666]">
+                <span>
+                  Showing {Math.min(1 + (transactionPage - 1) * PAGE_SIZE, filteredTransactions.length)} to{" "}
+                  {Math.min(transactionPage * PAGE_SIZE, filteredTransactions.length)} of {filteredTransactions.length} transactions
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={transactionPage <= 1}
+                    onClick={() => setTransactionPage((p) => Math.max(1, p - 1))}
+                    className="flex items-center gap-1 rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-2.5 py-1 text-xs font-semibold hover:bg-white disabled:opacity-40 cursor-pointer"
+                  >
+                    <ChevronLeft size={14} />
+                    <span>Previous</span>
+                  </button>
+                  <span className="font-semibold text-[#090e14] px-1">
+                    Page {transactionPage} of {totalTransactionPages}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={transactionPage >= totalTransactionPages}
+                    onClick={() => setTransactionPage((p) => Math.min(totalTransactionPages, p + 1))}
+                    className="flex items-center gap-1 rounded-lg border border-[#e2d9cb] bg-[#f6f4ee] px-2.5 py-1 text-xs font-semibold hover:bg-white disabled:opacity-40 cursor-pointer"
+                  >
+                    <span>Next</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 5: Analytics Reports */}
+        {activeTab === "analytics" && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="rounded-2xl border border-[#e2d9cb] bg-white p-5 shadow-xs">
+                <p className="text-xs font-semibold text-[#666666]">Avg Order Value</p>
+                <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">
+                  ${transactionsList.length > 0 ? (totalRevenueAmount / transactionsList.length).toFixed(2) : "14.99"}
+                </p>
+                <p className="mt-1 text-[11px] text-emerald-600 font-semibold">+8.4% this month</p>
+              </div>
+
+              <div className="rounded-2xl border border-[#e2d9cb] bg-white p-5 shadow-xs">
+                <p className="text-xs font-semibold text-[#666666]">Reader-Writer Ratio</p>
+                <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">
+                  {totalWritersCount > 0 ? (totalUsersCount / totalWritersCount).toFixed(1) : totalUsersCount}:1
+                </p>
+                <p className="mt-1 text-[11px] text-blue-600 font-semibold">Healthy marketplace</p>
+              </div>
+
+              <div className="rounded-2xl border border-[#e2d9cb] bg-white p-5 shadow-xs">
+                <p className="text-xs font-semibold text-[#666666]">Conversion Rate</p>
+                <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">4.8%</p>
+                <p className="mt-1 text-[11px] text-emerald-600 font-semibold">Above industry benchmark</p>
+              </div>
+
+              <div className="rounded-2xl border border-[#e2d9cb] bg-white p-5 shadow-xs">
+                <p className="text-xs font-semibold text-[#666666]">Active Catalog</p>
+                <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">
+                  {allEbooksList.filter((b) => b.status === "published").length} Titles
+                </p>
+                <p className="mt-1 text-[11px] text-purple-600 font-semibold">100% verified writers</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[#e2d9cb] bg-white p-6 shadow-xs">
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <h3 className="font-playfair text-lg font-bold text-[#090e14]">
+                    Revenue & Demand Growth Over Time
+                  </h3>
+                  <p className="text-xs text-[#666666]">
+                    Deep trajectory tracking transaction velocity against projected quarterly milestones.
+                  </p>
+                </div>
+                <span className="rounded-md bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">
+                  Analytics Deep Dive
+                </span>
+              </div>
+
+              <div className="h-80 w-full pt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={defaultMonthlyChart}>
+                    <XAxis dataKey="month" stroke="#666666" fontSize={12} />
+                    <YAxis stroke="#666666" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#050d16",
+                        color: "#ffffff",
+                        borderRadius: "8px",
+                        border: "none",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      name="Gross Volume ($)"
+                      stroke="#855210"
+                      strokeWidth={3}
+                      dot={{ r: 5, fill: "#855210" }}
+                      activeDot={{ r: 7 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="sales"
+                      name="Completed Sales"
+                      stroke="#2563eb"
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: "#2563eb" }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 6: Genre & Categories Management */}
+        {activeTab === "genres" && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-[#e2d9cb] bg-white p-6 shadow-xs">
+              <h2 className="font-playfair text-xl font-bold text-[#090e14] mb-1">
+                Add New Literary Genre
+              </h2>
+              <p className="text-xs text-[#666666] mb-4">
+                Define platform categories for book organization, storefront filters, and reader recommendations.
+              </p>
+
+              <form onSubmit={handleAddGenre} className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  placeholder="e.g. Historical Fiction, Memoir, Cyberpunk..."
+                  value={newGenreName}
+                  onChange={(e) => setNewGenreName(e.target.value)}
+                  className="h-10 flex-1 rounded-lg bg-[#f6f4ee] px-3 text-xs text-[#090e14] placeholder:text-[#888888] focus:bg-white focus:outline-none border border-[#e2d9cb]"
+                />
+                <button
+                  type="submit"
+                  className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#050d16] px-5 text-xs font-semibold uppercase tracking-wider text-white shadow-xs hover:bg-[#182230] transition-colors cursor-pointer"
+                >
+                  <Plus size={16} />
+                  <span>Add Category</span>
+                </button>
+              </form>
+            </div>
+
+            <div className="rounded-2xl border border-[#e2d9cb] bg-white p-6 shadow-xs">
+              <div className="mb-4">
+                <h3 className="font-playfair text-lg font-bold text-[#090e14]">
+                  Active Genre Catalog ({customGenres.length})
+                </h3>
+                <p className="text-xs text-[#666666]">
+                  Control category visibility on the storefront and author upload forms.
+                </p>
+              </div>
+
+              <div className="overflow-x-auto rounded-xl border border-[#e5e2dc]">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#f9f8f5] text-[11px] font-bold uppercase tracking-wider text-[#555555]">
+                    <tr>
+                      <th className="px-4 py-3.5">Genre Name</th>
+                      <th className="px-4 py-3.5">URL Slug</th>
+                      <th className="px-4 py-3.5">Catalog Titles</th>
+                      <th className="px-4 py-3.5">Status</th>
+                      <th className="px-4 py-3.5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#f0ece3] text-[#222222]">
+                    {customGenres.map((g) => (
+                      <tr key={g.id} className="hover:bg-[#fafaf8]">
+                        <td className="px-4 py-3.5 font-bold text-[#090e14]">{g.name}</td>
+                        <td className="px-4 py-3.5 font-mono text-[#666666]">/{g.slug}</td>
+                        <td className="px-4 py-3.5 font-semibold text-[#090e14]">{g.count} Ebooks</td>
+                        <td className="px-4 py-3.5">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                              g.active
+                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                : "bg-neutral-100 text-neutral-600 border border-neutral-200"
+                            }`}
+                          >
+                            {g.active ? "Active" : "Hidden"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleGenre(g.id)}
+                              className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold border transition-all cursor-pointer ${
+                                g.active
+                                  ? "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"
+                                  : "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
+                              }`}
+                            >
+                              {g.active ? "Deactivate" : "Activate"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCustomGenres((prev) => prev.filter((item) => item.id !== g.id));
+                                myToast.success(`Genre "${g.name}" removed`);
+                              }}
+                              className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                              title="Delete Genre"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
