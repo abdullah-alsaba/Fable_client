@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession, authClient } from "@/lib/auth-client";
 import DashboardSidebar from "./DashboardSidebar";
 import { myToast } from "@/utils/customToast";
@@ -28,8 +28,15 @@ import {
 
 export default function UserDashboard() {
   const router = useRouter();
-  const { data: session, isPending } = useSession();
-  const [activeTab, setActiveTab] = useState("overview");
+  const searchParams = useSearchParams();
+  const tabParam = searchParams ? searchParams.get("tab") : null;
+  const [activeTab, setActiveTab] = useState(
+    tabParam === "bookmarks"
+      ? "bookmarks"
+      : tabParam === "orders" || tabParam === "purchases"
+      ? "purchases"
+      : "overview"
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);

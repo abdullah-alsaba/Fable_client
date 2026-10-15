@@ -170,18 +170,6 @@ const LogIn = () => {
     await performLogin(emailInput, passwordInput);
   };
 
-  const handleDemoLogin = (role) => {
-    if (role === "admin") {
-      setEmailInput("admin@fable.com");
-      setPasswordInput("Admin@123");
-      performLogin("admin@fable.com", "Admin@123");
-    } else {
-      setEmailInput("reader@fable.com");
-      setPasswordInput("Reader@123");
-      performLogin("reader@fable.com", "Reader@123");
-    }
-  };
-
   const handelGoogle = async () => {
     const { error } = await handleGoogleAuth();
     if (error) {
@@ -218,7 +206,7 @@ const LogIn = () => {
               </span>
             </div>
 
-            <div className="mb-4">
+            <div className="mb-6">
               <h1 className="font-playfair text-2xl font-bold leading-tight tracking-tight text-[#090e14] sm:text-[30px] md:text-[32px]">
                 Welcome Back
               </h1>
@@ -226,31 +214,6 @@ const LogIn = () => {
               <p className="mt-1 text-xs text-[#5b5b5b]">
                 Sign in to continue your reading journey.
               </p>
-            </div>
-
-            {/* Quick Demo Credentials Banner */}
-            <div className="mb-4 rounded-xl border border-[#e5e0d8] bg-[#f9f7f4] p-3 text-xs">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#855210] mb-2">
-                Quick Demo Access (1-Click)
-              </p>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin("admin")}
-                  disabled={jwtLoading}
-                  className="flex-1 rounded-lg border border-[#090e14] bg-[#090e14] px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-xs hover:bg-[#182230] transition-colors cursor-pointer disabled:opacity-50"
-                >
-                  Demo Admin
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin("reader")}
-                  disabled={jwtLoading}
-                  className="flex-1 rounded-lg border border-[#c8bdae] bg-white px-2.5 py-1.5 text-[11px] font-semibold text-[#090e14] shadow-xs hover:bg-[#eae2d5] transition-colors cursor-pointer disabled:opacity-50"
-                >
-                  Demo Reader
-                </button>
-              </div>
             </div>
 
             <Form

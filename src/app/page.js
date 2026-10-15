@@ -8,6 +8,8 @@ import Testimonials from "@/Components/Home/Testimonials/Testimonials";
 import WriterCTA from "@/Components/Home/WriterCTA/WriterCTA";
 import FAQ from "@/Components/Home/FAQ/FAQ";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <main className="w-full bg-[#eae2d5] py-4 sm:py-8 lg:py-12 px-4 sm:px-8 lg:px-16 overflow-hidden">

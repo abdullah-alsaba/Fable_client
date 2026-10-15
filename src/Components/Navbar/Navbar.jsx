@@ -68,28 +68,17 @@ const Navbar = () => {
   const userRole = activeUser?.email === "admin@fable.com" ? "admin" : rawRole === "reader" ? "user" : rawRole;
   const dashboardHref = activeUser ? `/dashboard/${userRole}` : "/dashboard";
 
-  const loggedOutLinks = [
+  const navLinks = [
     { name: "Home", href: "/" },
     { name: "Browse Ebooks", href: "/browse-ebooks" },
+    { name: "Dashboard", href: dashboardHref },
     { name: "About Us", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
 
-  const loggedInLinks = [
-    { name: "Home", href: "/" },
-    { name: "Browse Ebooks", href: "/browse-ebooks" },
-    { name: "Dashboard", href: dashboardHref },
-    { name: "Bookmarks", href: `${dashboardHref}?tab=bookmarks` },
-    { name: "Orders", href: `${dashboardHref}?tab=orders` },
-    { name: "Contact", href: "/contact" },
-  ];
-
-  const navLinks = activeUser ? loggedInLinks : loggedOutLinks;
-
   const isActive = (href) => {
     if (href === "/") return pathname === "/";
-    const [pathPart] = href.split("?");
-    return pathname === pathPart;
+    return pathname.startsWith(href);
   };
 
   return (
@@ -109,7 +98,7 @@ const Navbar = () => {
 
           <Link
             href="/"
-            className="font-playfair text-2xl font-bold tracking-tight text-[#090e14] dark:text-[#e6e6e6] transition-opacity hover:opacity-90 sm:text-3xl"
+            className="font-playfair text-2xl font-bold tracking-tight text-[#090e14] dark:text-[#f3f3f3] hover:text-[#855210] dark:hover:text-[#d4af37] transition-colors sm:text-3xl"
           >
             Fable
           </Link>
