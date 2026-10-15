@@ -87,37 +87,94 @@ const ChevronDownIcon = () => (
 );
 
 const ContactPage = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errorMessage) setErrorMessage("");
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setErrorMessage("");
+
+    if (!formData.name.trim()) {
+      setErrorMessage("Please provide your full name.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      setErrorMessage("Please provide a valid email address.");
+      return;
+    }
+
+    if (!formData.subject) {
+      setErrorMessage("Please select an inquiry subject.");
+      return;
+    }
+
+    if (formData.message.trim().length < 5) {
+      setErrorMessage("Message must be at least 5 characters long.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
+      const res = await fetch(`${serverUri}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to send your message. Please try again.");
+      }
+
+      setSubmitted(true);
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      setErrorMessage(err.message || "An unexpected network error occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <main className="w-full bg-[#eae2d5] py-12 px-4 sm:px-8 lg:px-16">
+    <main className="w-full min-h-screen bg-[#eae2d5] dark:bg-[#0c101c] py-12 px-4 sm:px-8 lg:px-16 transition-colors">
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-16">
-        <div className="flex flex-col">
-          <h1 className="font-playfair text-4xl font-bold tracking-tight text-[#090e14] sm:text-5xl lg:text-6xl">
+        <div className="flex flex-col text-left">
+          <h1 className="font-playfair text-4xl font-bold tracking-tight text-[#090e14] dark:text-[#f3f3f3] sm:text-5xl lg:text-6xl">
             Get in touch.
           </h1>
 
-          <p className="mt-4 max-w-md text-xs leading-relaxed text-[#555555] sm:text-sm">
+          <p className="mt-4 max-w-md text-xs leading-relaxed text-[#555555] dark:text-[#a09c95] sm:text-sm">
             Whether you&apos;re an author seeking to publish, a reader with
             feedback, or just curious about what we do at Fable, we&apos;re here
             for the conversation.
           </p>
 
-          <div className="my-6 max-w-md border-t border-[#e2d9cb]" />
+          <div className="my-6 max-w-md border-t border-[#e2d9cb] dark:border-[#253252]" />
 
           <div className="flex flex-col gap-6">
             <div className="flex items-start gap-3">
               <LocationPinIcon />
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#171717]">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#171717] dark:text-[#f0f0f0]">
                   London Office
                 </h3>
-                <p className="mt-1 text-xs leading-relaxed text-[#555555]">
+                <p className="mt-1 text-xs leading-relaxed text-[#555555] dark:text-[#a09c95]">
                   42 Publishing Row
                   <br />
                   Clerkenwell, London
@@ -130,12 +187,12 @@ const ContactPage = () => {
             <div className="flex items-start gap-3">
               <MailIcon />
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#171717]">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#171717] dark:text-[#f0f0f0]">
                   General Inquiries
                 </h3>
                 <a
                   href="mailto:hello@fablepublishing.com"
-                  className="mt-0.5 block text-xs font-medium text-[#090e14] underline underline-offset-2 hover:text-[#a2753b] transition-colors"
+                  className="mt-0.5 block text-xs font-medium text-[#090e14] dark:text-[#d4af37] underline underline-offset-2 hover:text-[#a2753b] transition-colors"
                 >
                   hello@fablepublishing.com
                 </a>
@@ -145,12 +202,12 @@ const ContactPage = () => {
             <div className="flex items-start gap-3">
               <SupportIcon />
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#171717]">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#171717] dark:text-[#f0f0f0]">
                   Author Support
                 </h3>
                 <a
                   href="mailto:support@fablepublishing.com"
-                  className="mt-0.5 block text-xs font-medium text-[#090e14] underline underline-offset-2 hover:text-[#a2753b] transition-colors"
+                  className="mt-0.5 block text-xs font-medium text-[#090e14] dark:text-[#d4af37] underline underline-offset-2 hover:text-[#a2753b] transition-colors"
                 >
                   support@fablepublishing.com
                 </a>
@@ -159,65 +216,91 @@ const ContactPage = () => {
           </div>
         </div>
 
-        <div className="w-full">
-          <div className="w-full rounded-2xl border border-[#e5e5e0] bg-white p-6 shadow-xl sm:p-8">
+        <div className="w-full text-left">
+          <div className="w-full rounded-2xl border border-[#e5e5e0] dark:border-[#253252] bg-white dark:bg-[#141b2d] p-6 shadow-xl sm:p-8">
             {submitted ? (
               <div className="py-12 text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#16a34a]/10 text-[#16a34a]">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#16a34a]/10 dark:bg-[#16a34a]/20 text-[#16a34a] dark:text-[#4ade80] text-xl font-bold">
                   ✓
                 </div>
-                <h3 className="font-playfair text-xl font-bold text-[#090e14]">
-                  Message Sent!
+                <h3 className="font-playfair text-xl sm:text-2xl font-bold text-[#090e14] dark:text-[#f3f3f3]">
+                  Message Received!
                 </h3>
-                <p className="mt-2 text-xs text-[#555555]">
-                  Thank you for contacting us. We will respond shortly.
+                <p className="mt-2 text-xs text-[#555555] dark:text-[#a09c95] max-w-sm mx-auto">
+                  Thank you for reaching out. Your dispatch has been saved in our correspondence log, and our editorial team will reply shortly.
                 </p>
                 <button
                   type="button"
                   onClick={() => setSubmitted(false)}
-                  className="mt-6 text-xs font-semibold text-[#090e14] underline hover:text-[#a2753b]"
+                  className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#855210] dark:text-[#d4af37] underline hover:text-[#5f390c] cursor-pointer"
                 >
                   Send another message
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                {errorMessage && (
+                  <div className="rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 p-3 text-xs text-red-700 dark:text-red-300">
+                    {errorMessage}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-[#171717]">
-                      Full Name
+                    <label
+                      htmlFor="contact-name"
+                      className="mb-1.5 block text-xs font-semibold text-[#171717] dark:text-[#d1d5db]"
+                    >
+                      Full Name *
                     </label>
                     <input
+                      id="contact-name"
+                      name="name"
                       type="text"
                       required
+                      value={formData.name}
+                      onChange={handleChange}
                       placeholder="Jane Austen"
-                      className="h-10 w-full rounded-lg bg-[#e8e7e5] px-3.5 text-xs text-[#090e14] placeholder:text-[#999999] focus:bg-white focus:outline-none transition-all"
+                      className="h-10 w-full rounded-lg bg-[#e8e7e5] dark:bg-[#1d273f] px-3.5 text-xs text-[#090e14] dark:text-[#f0f0f0] placeholder:text-[#999999] dark:placeholder:text-[#6b7280] border border-transparent dark:border-[#2a375a] focus:bg-white dark:focus:bg-[#161f36] focus:border-[#855210] dark:focus:border-[#d4af37] focus:outline-none transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-[#171717]">
-                      Email Address
+                    <label
+                      htmlFor="contact-email"
+                      className="mb-1.5 block text-xs font-semibold text-[#171717] dark:text-[#d1d5db]"
+                    >
+                      Email Address *
                     </label>
                     <input
+                      id="contact-email"
+                      name="email"
                       type="email"
                       required
+                      value={formData.email}
+                      onChange={handleChange}
                       placeholder="jane@example.com"
-                      className="h-10 w-full rounded-lg bg-[#e8e7e5] px-3.5 text-xs text-[#090e14] placeholder:text-[#999999] focus:bg-white focus:outline-none transition-all"
+                      className="h-10 w-full rounded-lg bg-[#e8e7e5] dark:bg-[#1d273f] px-3.5 text-xs text-[#090e14] dark:text-[#f0f0f0] placeholder:text-[#999999] dark:placeholder:text-[#6b7280] border border-transparent dark:border-[#2a375a] focus:bg-white dark:focus:bg-[#161f36] focus:border-[#855210] dark:focus:border-[#d4af37] focus:outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[#171717]">
-                    Subject
+                  <label
+                    htmlFor="contact-subject"
+                    className="mb-1.5 block text-xs font-semibold text-[#171717] dark:text-[#d1d5db]"
+                  >
+                    Subject *
                   </label>
 
                   <div className="relative">
                     <select
-                      defaultValue=""
+                      id="contact-subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
                       required
-                      className="h-10 w-full appearance-none rounded-lg bg-[#e8e7e5] px-3.5 pr-10 text-xs text-[#090e14] focus:bg-white focus:outline-none transition-all cursor-pointer"
+                      className="h-10 w-full appearance-none rounded-lg bg-[#e8e7e5] dark:bg-[#1d273f] px-3.5 pr-10 text-xs text-[#090e14] dark:text-[#f0f0f0] border border-transparent dark:border-[#2a375a] focus:bg-white dark:focus:bg-[#161f36] focus:border-[#855210] dark:focus:border-[#d4af37] focus:outline-none transition-all cursor-pointer"
                     >
                       <option value="" disabled>
                         Select an inquiry type...
@@ -225,7 +308,7 @@ const ContactPage = () => {
                       <option value="general">General Inquiry</option>
                       <option value="author">Author Publishing</option>
                       <option value="reader">Reader Feedback</option>
-                      <option value="support">Support</option>
+                      <option value="support">Technical Support</option>
                     </select>
 
                     <ChevronDownIcon />
@@ -233,23 +316,31 @@ const ContactPage = () => {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[#171717]">
-                    Your Message
+                  <label
+                    htmlFor="contact-message"
+                    className="mb-1.5 block text-xs font-semibold text-[#171717] dark:text-[#d1d5db]"
+                  >
+                    Your Message *
                   </label>
 
                   <textarea
+                    id="contact-message"
+                    name="message"
                     required
                     rows={5}
-                    placeholder="How can we help you today?"
-                    className="w-full rounded-lg bg-[#e8e7e5] p-3.5 text-xs text-[#090e14] placeholder:text-[#999999] focus:bg-white focus:outline-none transition-all resize-none min-h-35"
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="How can our editorial team assist you today?"
+                    className="w-full rounded-lg bg-[#e8e7e5] dark:bg-[#1d273f] p-3.5 text-xs text-[#090e14] dark:text-[#f0f0f0] placeholder:text-[#999999] dark:placeholder:text-[#6b7280] border border-transparent dark:border-[#2a375a] focus:bg-white dark:focus:bg-[#161f36] focus:border-[#855210] dark:focus:border-[#d4af37] focus:outline-none transition-all resize-none min-h-35"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="mt-2 flex h-10 w-fit cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#050d16] px-6 text-xs font-semibold uppercase tracking-wider text-white shadow-xs transition-all hover:bg-[#182230] active:scale-[0.99]"
+                  disabled={isSubmitting}
+                  className="mt-2 flex h-10 w-fit cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#050d16] dark:bg-[#d4af37] px-6 text-xs font-semibold uppercase tracking-wider text-white dark:text-[#090e14] shadow-xs transition-all hover:bg-[#182230] dark:hover:bg-[#b8952b] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span>Send Message</span>
+                  <span>{isSubmitting ? "Sending Dispatch..." : "Send Message"}</span>
                   <SendIcon />
                 </button>
               </form>
