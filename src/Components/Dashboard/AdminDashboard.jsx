@@ -11,6 +11,8 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -32,11 +34,16 @@ import {
   DollarSign,
   TrendingUp,
   Award,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+  Plus,
 } from "lucide-react";
 
 export default function AdminDashboard() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  const [localUser, setLocalUser] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
 
   const [userSearch, setUserSearch] = useState("");
@@ -52,32 +59,77 @@ export default function AdminDashboard() {
   const [monthlySalesData, setMonthlySalesData] = useState([]);
   const [genrePieData, setGenrePieData] = useState([]);
 
+  // Pagination states
+  const [userPage, setUserPage] = useState(1);
+  const [ebookPage, setEbookPage] = useState(1);
+  const [transactionPage, setTransactionPage] = useState(1);
+  const PAGE_SIZE = 8;
+
+  // Sorting states
+  const [userSortField, setUserSortField] = useState("name");
+  const [userSortAsc, setUserSortAsc] = useState(true);
+  const [ebookSortField, setEbookSortField] = useState("title");
+  const [ebookSortAsc, setEbookSortAsc] = useState(true);
+
+  // Genre categories state
+  const [customGenres, setCustomGenres] = useState([
+    { id: 1, name: "Fiction", slug: "fiction", count: 18, active: true },
+    { id: 2, name: "Science Fiction", slug: "sci-fi", count: 12, active: true },
+    { id: 3, name: "Fantasy", slug: "fantasy", count: 15, active: true },
+    { id: 4, name: "Mystery", slug: "mystery", count: 9, active: true },
+    { id: 5, name: "Non-Fiction", slug: "non-fiction", count: 7, active: true },
+    { id: 6, name: "Self-Help", slug: "self-help", count: 5, active: true },
+  ]);
+  const [newGenreName, setNewGenreName] = useState("");
+
   const PIE_COLORS = ["#050d16", "#855210", "#2563eb", "#16a34a", "#9333ea"];
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("fable-user");
+      if (stored) {
+        try {
+          setLocalUser(JSON.parse(stored));
+        } catch {}
+      }
+    }
+  }, []);
+
+  const activeUser = session?.user || localUser;
+
+  const getAuthHeaders = () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("fable-jwt") : "";
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+  };
+
+  useEffect(() => {
     if (!isPending) {
-      if (!session?.user) {
+      if (!activeUser) {
         router.replace("/login");
         return;
       }
 
-      const isAdmin = session.user.email === "admin@fable.com" || session.user.role === "admin";
+      const isAdmin = activeUser.email === "admin@fable.com" || activeUser.role === "admin";
 
       if (!isAdmin) {
         myToast.error("Access Denied: Admin privileges required (admin@fable.com)");
-        router.replace(session.user.role === "writer" ? "/dashboard/writer" : "/dashboard/user");
+        router.replace(activeUser.role === "writer" ? "/dashboard/writer" : "/dashboard/user");
         return;
       }
 
       fetchAdminDataFromDB();
     }
-  }, [session, isPending, router]);
+  }, [activeUser, isPending, router]);
 
   const fetchAdminDataFromDB = async () => {
     try {
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
+      const authHeaders = getAuthHeaders();
 
-      const usersRes = await fetch(`${serverUri}/api/users`);
+      const usersRes = await fetch(`${serverUri}/api/users`, { headers: authHeaders });
       const usersData = await usersRes.json();
       if (usersData.success && Array.isArray(usersData.users)) {
         setUsersList(
@@ -107,7 +159,7 @@ export default function AdminDashboard() {
         }))
       );
 
-      const purchasesRes = await fetch(`${serverUri}/api/purchases`);
+      const purchasesRes = await fetch(`${serverUri}/api/purchases`, { headers: authHeaders });
       const purchasesData = await purchasesRes.json();
       if (purchasesData.success && Array.isArray(purchasesData.purchases)) {
         setTransactionsList(
@@ -123,7 +175,7 @@ export default function AdminDashboard() {
         setTransactionsList([]);
       }
 
-      const analyticsRes = await fetch(`${serverUri}/api/analytics`);
+      const analyticsRes = await fetch(`${serverUri}/api/analytics`, { headers: authHeaders });
       const analyticsData = await analyticsRes.json();
       if (analyticsData.success) {
         if (Array.isArray(analyticsData.monthlySales)) {
@@ -146,7 +198,7 @@ export default function AdminDashboard() {
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
       await fetch(`${serverUri}/api/users/${userId}/role`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ role: newRole }),
       });
     } catch (err) {
@@ -162,7 +214,10 @@ export default function AdminDashboard() {
   const handleDeleteUser = async (userId) => {
     try {
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
-      await fetch(`${serverUri}/api/users/${userId}`, { method: "DELETE" });
+      await fetch(`${serverUri}/api/users/${userId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -179,7 +234,7 @@ export default function AdminDashboard() {
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
       await fetch(`${serverUri}/api/ebooks/${ebookId}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ status: newStatus }),
       });
     } catch (err) {
@@ -195,13 +250,34 @@ export default function AdminDashboard() {
   const handleDeleteEbook = async (ebookId) => {
     try {
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
-      await fetch(`${serverUri}/api/ebooks/${ebookId}`, { method: "DELETE" });
+      await fetch(`${serverUri}/api/ebooks/${ebookId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
     } catch (err) {
       console.error(err);
     } finally {
       setAllEbooksList((prev) => prev.filter((book) => book.id !== ebookId));
       myToast.success("Ebook removed from platform");
     }
+  };
+
+  const handleAddGenre = (e) => {
+    e.preventDefault();
+    if (!newGenreName.trim()) return;
+    const newSlug = newGenreName.toLowerCase().replace(/\s+/g, "-");
+    setCustomGenres((prev) => [
+      ...prev,
+      { id: Date.now(), name: newGenreName.trim(), slug: newSlug, count: 0, active: true },
+    ]);
+    setNewGenreName("");
+    myToast.success(`Genre "${newGenreName}" added`);
+  };
+
+  const handleToggleGenre = (id) => {
+    setCustomGenres((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, active: !g.active } : g))
+    );
   };
 
   const totalUsersCount = usersList.filter((u) => u.role === "user" || u.role === "reader").length;
@@ -217,11 +293,33 @@ export default function AdminDashboard() {
     return matchesSearch && matchesRole;
   });
 
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    const valA = (a[userSortField] || "").toString().toLowerCase();
+    const valB = (b[userSortField] || "").toString().toLowerCase();
+    if (valA < valB) return userSortAsc ? -1 : 1;
+    if (valA > valB) return userSortAsc ? 1 : -1;
+    return 0;
+  });
+  const paginatedUsers = sortedUsers.slice((userPage - 1) * PAGE_SIZE, userPage * PAGE_SIZE);
+  const totalUserPages = Math.ceil(sortedUsers.length / PAGE_SIZE) || 1;
+
   const filteredEbooks = allEbooksList.filter(
     (book) =>
       book.title.toLowerCase().includes(ebookSearch.toLowerCase()) ||
       book.writerName.toLowerCase().includes(ebookSearch.toLowerCase())
   );
+
+  const sortedEbooks = [...filteredEbooks].sort((a, b) => {
+    let valA = a[ebookSortField];
+    let valB = b[ebookSortField];
+    if (typeof valA === "string") valA = valA.toLowerCase();
+    if (typeof valB === "string") valB = valB.toLowerCase();
+    if (valA < valB) return ebookSortAsc ? -1 : 1;
+    if (valA > valB) return ebookSortAsc ? 1 : -1;
+    return 0;
+  });
+  const paginatedEbooks = sortedEbooks.slice((ebookPage - 1) * PAGE_SIZE, ebookPage * PAGE_SIZE);
+  const totalEbookPages = Math.ceil(sortedEbooks.length / PAGE_SIZE) || 1;
 
   const filteredTransactions = transactionsList.filter((item) => {
     const matchesSearch =
@@ -232,10 +330,24 @@ export default function AdminDashboard() {
     return matchesSearch && matchesType;
   });
 
+  const paginatedTransactions = filteredTransactions.slice(
+    (transactionPage - 1) * PAGE_SIZE,
+    transactionPage * PAGE_SIZE
+  );
+  const totalTransactionPages = Math.ceil(filteredTransactions.length / PAGE_SIZE) || 1;
+
+  const defaultMonthlyChart = monthlySalesData.length > 0 ? monthlySalesData : [
+    { month: "Nov", sales: 15, revenue: 310 },
+    { month: "Dec", sales: 24, revenue: 540 },
+    { month: "Jan", sales: 32, revenue: 780 },
+    { month: "Feb", sales: 48, revenue: 1120 },
+    { month: "Mar", sales: 60, revenue: 1450 },
+  ];
+
   return (
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] bg-[#eae2d5] px-4 sm:px-6 lg:px-10 py-4 lg:py-6 gap-5 lg:gap-6">
       <DashboardSidebar
-        user={session?.user}
+        user={activeUser}
         role="admin"
         activeTab={activeTab}
         setActiveTab={setActiveTab}

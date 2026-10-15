@@ -50,10 +50,23 @@ const Navbar = () => {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { data: session, isPending } = useSession();
+  const [localUser, setLocalUser] = useState(null);
 
-  const rawRole = session?.user?.role || "user";
-  const userRole = rawRole === "reader" ? "user" : rawRole;
-  const dashboardHref = session?.user ? `/dashboard/${userRole}` : "/dashboard";
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("fable-user");
+      if (stored) {
+        try {
+          setLocalUser(JSON.parse(stored));
+        } catch {}
+      }
+    }
+  }, [session]);
+
+  const activeUser = session?.user || localUser;
+  const rawRole = activeUser?.role || "user";
+  const userRole = activeUser?.email === "admin@fable.com" ? "admin" : rawRole === "reader" ? "user" : rawRole;
+  const dashboardHref = activeUser ? `/dashboard/${userRole}` : "/dashboard";
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -109,10 +122,10 @@ const Navbar = () => {
 
           <div className="hidden items-center gap-3.5 md:flex min-h-9">
             <ThemeToggle />
-            {isPending ? (
+            {isPending && !activeUser ? (
               <ProfileSkeleton />
-            ) : session?.user ? (
-              <ProfileDropdown user={session.user} />
+            ) : activeUser ? (
+              <ProfileDropdown user={activeUser} />
             ) : (
               <>
                 <Link
@@ -134,10 +147,10 @@ const Navbar = () => {
 
           <div className="flex items-center gap-2 md:hidden min-h-9">
             <ThemeToggle />
-            {isPending ? (
+            {isPending && !activeUser ? (
               <ProfileSkeleton />
-            ) : session?.user ? (
-              <ProfileDropdown user={session.user} />
+            ) : activeUser ? (
+              <ProfileDropdown user={activeUser} />
             ) : (
               <Link
                 href="/login"
@@ -172,13 +185,13 @@ const Navbar = () => {
 
               <div className="my-2 h-px w-full bg-[#e2d9cb] dark:bg-[#252d48]" />
 
-              {isPending ? (
+              {isPending && !activeUser ? (
                 <div className="py-2">
                   <ProfileSkeleton />
                 </div>
-              ) : session?.user ? (
+              ) : activeUser ? (
                 <div className="py-1">
-                  <ProfileDropdown user={session.user} />
+                  <ProfileDropdown user={activeUser} />
                 </div>
               ) : (
                 <div className="flex flex-col gap-2.5 pt-1">

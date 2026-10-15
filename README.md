@@ -113,11 +113,12 @@ Built on the **MERN stack with Next.js**, Fable demonstrates production-grade en
 
 ## Demo Credentials
 
-| Role | Email | Password |
-|---|---|---|
-| Admin | admin@fable.com | Admin@123 |
+| Role | Email | Password | Access Level |
+|---|---|---|---|
+| **Admin** | `admin@fable.com` | `Admin@123` | Full administrative control, user/role management, analytics, content moderation |
+| **Reader / User** | `reader@fable.com` | `Reader@123` | Storefront browsing, purchase history, ebook library, bookmarking |
 
-The admin account is seeded automatically on first server start if it does not already exist in the database.
+Both demo accounts are automatically seeded into the database on server startup. Quick 1-click login buttons are also provided directly on the Login page (`/login`).
 
 ---
 

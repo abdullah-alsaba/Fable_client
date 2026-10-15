@@ -74,20 +74,40 @@ const LogIn = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [jwtLoading, setJwtLoading] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
 
-  const handelSingInButton = async (e) => {
-    e.preventDefault();
+  const saveAuthSession = (token, user) => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("fable-jwt", token);
+      window.localStorage.setItem("fable-user", JSON.stringify(user));
+      document.cookie = `fable-jwt=${token}; path=/; max-age=604800; SameSite=Lax`;
+      document.cookie = `fable-user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=604800; SameSite=Lax`;
+    }
+  };
 
-    const formData = new FormData(e.currentTarget);
+  const redirectUser = (user, email) => {
+    const userRole = user?.role;
+    if (userRole === "admin" || email === "admin@fable.com") {
+      router.push("/dashboard/admin");
+    } else if (userRole === "writer") {
+      router.push("/dashboard/writer");
+    } else {
+      router.push("/dashboard/user");
+    }
+  };
 
-    const email = String(formData.get("email") || "").trim();
-    const password = String(formData.get("password") || "");
+  const performLogin = async (targetEmail, targetPassword) => {
+    const email = String(targetEmail || "").trim();
+    const password = String(targetPassword || "");
 
     if (!email || !password) return;
 
     setJwtLoading(true);
+    const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
+
     try {
-      const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
+      // 1. Try Express backend JWT login
       const jwtRes = await fetch(`${serverUri}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,61 +117,77 @@ const LogIn = () => {
       if (jwtRes.ok) {
         const data = await jwtRes.json();
         if (data.success && data.token) {
-          if (typeof window !== "undefined") {
-            window.localStorage.setItem("fable-jwt", data.token);
-            window.localStorage.setItem(
-              "fable-user",
-              JSON.stringify(data.user)
-            );
-          }
-          myToast.success("Log In Successfully (JWT)");
-          const userRole = data.user?.role;
-          if (userRole === "admin" || email === "admin@fable.com") {
-            router.push("/dashboard/admin");
-          } else if (userRole === "writer") {
-            router.push("/dashboard/writer");
-          } else {
-            router.push("/");
-          }
+          saveAuthSession(data.token, data.user);
+          // Also attempt BetterAuth login in background
+          try {
+            await authClient.signIn.email({ email, password });
+          } catch {}
+          myToast.success(`Logged in as ${data.user?.name || data.user?.role || "User"}`);
+          redirectUser(data.user, email);
           return;
         }
       }
-    } catch {
+
+      // 2. Fallback to BetterAuth client sign in
+      const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+      });
+
+      if (error) {
+        myToast.error(error.message || "Invalid credentials. Please check your info.");
+        return;
+      }
+
+      if (data?.user) {
+        // Fetch JWT from server for this authenticated user
+        try {
+          const tokenRes = await fetch(`${serverUri}/api/auth/token`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: data.user.email }),
+          });
+          if (tokenRes.ok) {
+            const tokenData = await tokenRes.json();
+            if (tokenData.success && tokenData.token) {
+              saveAuthSession(tokenData.token, tokenData.user);
+            }
+          }
+        } catch {}
+
+        myToast.success("Log In Successfully");
+        redirectUser(data.user, email);
+      }
+    } catch (err) {
+      myToast.error(err.message || "Login failed, please try again.");
     } finally {
       setJwtLoading(false);
     }
+  };
 
-    const { data, error } = await authClient.signIn.email({
-      email,
-      password,
-    });
+  const handelSingInButton = async (e) => {
+    e.preventDefault();
+    await performLogin(emailInput, passwordInput);
+  };
 
-    if (error) {
-      myToast.error(error.message || "Check Your Info and Try Again");
-      return;
-    }
-
-    if (data) {
-      myToast.success("Log In Successfully");
-      const userRole = data?.user?.role;
-      if (userRole === "admin" || email === "admin@fable.com") {
-        router.push("/dashboard/admin");
-      } else if (userRole === "writer") {
-        router.push("/dashboard/writer");
-      } else {
-        router.push("/");
-      }
+  const handleDemoLogin = (role) => {
+    if (role === "admin") {
+      setEmailInput("admin@fable.com");
+      setPasswordInput("Admin@123");
+      performLogin("admin@fable.com", "Admin@123");
+    } else {
+      setEmailInput("reader@fable.com");
+      setPasswordInput("Reader@123");
+      performLogin("reader@fable.com", "Reader@123");
     }
   };
 
-
-   const handelGoogle = async () => {
-      const { error } = await handleGoogleAuth();
-   
-      if (error) {
-        myToast.error("Google login failed");
-      }
-    };
+  const handelGoogle = async () => {
+    const { error } = await handleGoogleAuth();
+    if (error) {
+      myToast.error("Google login failed");
+    }
+  };
   return (
     <main className="flex min-h-screen w-full items-center justify-center bg-[#eae2d5] p-4 sm:p-6 md:p-8">
       <div className="flex w-full max-w-225 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:min-h-145 md:flex-row">
@@ -182,14 +218,39 @@ const LogIn = () => {
               </span>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-4">
               <h1 className="font-playfair text-2xl font-bold leading-tight tracking-tight text-[#090e14] sm:text-[30px] md:text-[32px]">
                 Welcome Back
               </h1>
 
-              <p className="mt-1.5 text-xs text-[#5b5b5b]">
+              <p className="mt-1 text-xs text-[#5b5b5b]">
                 Sign in to continue your reading journey.
               </p>
+            </div>
+
+            {/* Quick Demo Credentials Banner */}
+            <div className="mb-4 rounded-xl border border-[#e5e0d8] bg-[#f9f7f4] p-3 text-xs">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[#855210] mb-2">
+                Quick Demo Access (1-Click)
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin("admin")}
+                  disabled={jwtLoading}
+                  className="flex-1 rounded-lg border border-[#090e14] bg-[#090e14] px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-xs hover:bg-[#182230] transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Demo Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin("reader")}
+                  disabled={jwtLoading}
+                  className="flex-1 rounded-lg border border-[#c8bdae] bg-white px-2.5 py-1.5 text-[11px] font-semibold text-[#090e14] shadow-xs hover:bg-[#eae2d5] transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Demo Reader
+                </button>
+              </div>
             </div>
 
             <Form
@@ -200,6 +261,8 @@ const LogIn = () => {
                 isRequired
                 name="email"
                 type="email"
+                value={emailInput}
+                onChange={(val) => setEmailInput(val)}
                 validate={(value) => {
                   if (!value) return "Email is required";
                   if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
@@ -213,6 +276,8 @@ const LogIn = () => {
                 </Label>
 
                 <Input
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="reader@fable.com"
                   className="h-10 w-full rounded-lg bg-[#e8e7e5] px-3.5 text-xs text-[#090e14] placeholder:text-[#999999] focus:bg-white focus:outline-none transition-all"
                 />
@@ -225,6 +290,8 @@ const LogIn = () => {
                 minLength={8}
                 name="password"
                 type={showPassword ? "text" : "password"}
+                value={passwordInput}
+                onChange={(val) => setPasswordInput(val)}
                 validate={(value) => {
                   if (!value) return "Password is required";
                   if (value.length < 8) {
@@ -239,15 +306,17 @@ const LogIn = () => {
                   </Label>
 
                   <Link
-                    href="/forgot-password"
+                    href="/contact"
                     className="text-[11px] font-semibold text-[#a2753b] hover:underline"
                   >
-                    Forgot Password?
+                    Need Help?
                   </Link>
                 </div>
 
                 <div className="relative">
                   <Input
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
                     placeholder="••••••••"
                     className="h-10 w-full rounded-lg bg-[#e8e7e5] pl-3.5 pr-10 text-xs text-[#090e14] placeholder:text-[#999999] focus:bg-white focus:outline-none transition-all"
                   />

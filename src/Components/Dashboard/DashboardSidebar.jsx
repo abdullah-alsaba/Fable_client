@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   ArrowLeft,
+  TrendingUp,
 } from "lucide-react";
 
 export default function DashboardSidebar({ user, role, activeTab, setActiveTab, counts = {} }) {
@@ -41,6 +42,12 @@ export default function DashboardSidebar({ user, role, activeTab, setActiveTab, 
     } catch (err) {
       console.error(err);
     } finally {
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem("fable-jwt");
+        window.localStorage.removeItem("fable-user");
+        document.cookie = "fable-jwt=; path=/; max-age=0";
+        document.cookie = "fable-user=; path=/; max-age=0";
+      }
       router.push("/login");
       router.refresh();
     }
@@ -48,6 +55,7 @@ export default function DashboardSidebar({ user, role, activeTab, setActiveTab, 
 
   const menuConfigs = {
     user: [
+      { id: "overview", label: "Dashboard Home", icon: LayoutDashboard },
       { id: "purchases", label: "Purchase History", icon: ShoppingBag, badge: counts.purchases },
       { id: "purchased-gallery", label: "Purchased Ebooks", icon: BookOpen, badge: counts.purchasedEbooks },
       { id: "profile", label: "Profile Management", icon: User },
@@ -56,14 +64,16 @@ export default function DashboardSidebar({ user, role, activeTab, setActiveTab, 
     writer: [
       { id: "manage", label: "Manage Ebooks", icon: BookOpen, badge: counts.writerEbooks },
       { id: "add", label: "Add Ebook", icon: PlusCircle },
-      { id: "bookmarks", label: "Bookmark Page", icon: Bookmark, badge: counts.bookmarks },
       { id: "sales", label: "Sales History", icon: DollarSign, badge: counts.sales },
+      { id: "bookmarks", label: "Bookmark Page", icon: Bookmark, badge: counts.bookmarks },
     ],
     admin: [
       { id: "overview", label: "Dashboard Home", icon: LayoutDashboard },
       { id: "users", label: "Manage Users", icon: Users, badge: counts.users },
       { id: "ebooks", label: "Manage All Ebooks", icon: BookOpen, badge: counts.allEbooks },
       { id: "transactions", label: "View All Transactions", icon: Receipt, badge: counts.transactions },
+      { id: "analytics", label: "Analytics & Reports", icon: TrendingUp },
+      { id: "genres", label: "Genre & Categories", icon: PlusCircle },
     ],
   };
 

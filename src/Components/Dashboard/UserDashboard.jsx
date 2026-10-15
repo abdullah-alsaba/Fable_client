@@ -65,52 +65,66 @@ export default function UserDashboard() {
   const [avatarFile, setAvatarFile] = useState(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [localUser, setLocalUser] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("fable-user");
+      if (stored) {
+        try {
+          setLocalUser(JSON.parse(stored));
+        } catch {}
+      }
+    }
+  }, []);
+
+  const activeUser = session?.user || localUser;
 
   useEffect(() => {
     if (!isPending) {
-      if (!session?.user) {
+      if (!activeUser) {
         router.replace("/login");
         return;
       }
 
-      const role = session.user.role;
-      if (role === "writer" && session.user.email !== "admin@fable.com") {
+      const role = activeUser.role;
+      if (role === "writer" && activeUser.email !== "admin@fable.com") {
         router.replace("/dashboard/writer");
         return;
       }
-      if (role === "admin" || session.user.email === "admin@fable.com") {
+      if (role === "admin" || activeUser.email === "admin@fable.com") {
         router.replace("/dashboard/admin");
         return;
       }
 
       const userImg =
-        session.user.image ||
-        session.user.picture ||
-        session.user.avatar ||
-        session.user.profilePicture ||
-        session.user.photoURL ||
+        activeUser.image ||
+        activeUser.picture ||
+        activeUser.avatar ||
+        activeUser.profilePicture ||
+        activeUser.photoURL ||
         "";
 
       setProfileData((prev) => ({
         ...prev,
-        name: session.user.name || prev.name,
-        email: session.user.email || prev.email,
-        role: session.user.role || prev.role,
+        name: activeUser.name || prev.name,
+        email: activeUser.email || prev.email,
+        role: activeUser.role || prev.role,
         avatar: userImg || prev.avatar,
       }));
 
       setEditForm((prev) => ({
         ...prev,
-        name: session.user.name || prev.name,
+        name: activeUser.name || prev.name,
         avatar: userImg || prev.avatar,
       }));
 
       Promise.all([
-        fetchBookmarksFromDB(session.user.email),
-        fetchPurchasesFromDB(session.user.email),
+        fetchBookmarksFromDB(activeUser.email),
+        fetchPurchasesFromDB(activeUser.email),
       ]).finally(() => setIsLoadingData(false));
     }
-  }, [session, isPending, router]);
+  }, [activeUser, isPending, router]);
 
   const fetchBookmarksFromDB = async (email) => {
     try {
@@ -253,7 +267,7 @@ export default function UserDashboard() {
   return (
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] bg-[#eae2d5] px-4 sm:px-6 lg:px-10 py-4 lg:py-6 gap-5 lg:gap-6">
       <DashboardSidebar
-        user={session?.user || profileData}
+        user={activeUser || profileData}
         role={profileData.role}
         activeTab={activeTab}
         setActiveTab={setActiveTab}

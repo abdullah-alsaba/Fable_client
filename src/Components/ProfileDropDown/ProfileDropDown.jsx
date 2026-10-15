@@ -21,6 +21,12 @@ export function ProfileDropdown({ user }) {
     } catch (err) {
       console.error("Sign out error:", err);
     } finally {
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem("fable-jwt");
+        window.localStorage.removeItem("fable-user");
+        document.cookie = "fable-jwt=; path=/; max-age=0";
+        document.cookie = "fable-user=; path=/; max-age=0";
+      }
       router.push("/login");
       router.refresh();
     }

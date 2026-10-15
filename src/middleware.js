@@ -4,10 +4,10 @@ import { auth } from "@/lib/auth";
 function hasSessionCookie(request) {
   return request.cookies
     .getAll()
-    .some((cookie) => cookie.name.includes("better-auth.session_token"));
+    .some((cookie) => cookie.name.includes("better-auth.session_token") || cookie.name === "fable-jwt");
 }
 
-export async function proxy(request) {
+export default async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   if (!pathname.startsWith("/dashboard")) {
@@ -19,16 +19,33 @@ export async function proxy(request) {
       headers: request.headers,
     });
 
-    if (!session?.user) {
+    let user = session?.user;
+
+    // Check fallback cookie if better-auth session is absent
+    if (!user) {
+      const jwtCookie = request.cookies.get("fable-jwt")?.value;
+      const userCookie = request.cookies.get("fable-user")?.value;
+      if (jwtCookie && userCookie) {
+        try {
+          user = JSON.parse(decodeURIComponent(userCookie));
+        } catch {
+          try {
+            user = JSON.parse(userCookie);
+          } catch {}
+        }
+      }
+    }
+
+    if (!user) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    const rawRole = session.user.role || "user";
+    const rawRole = user.role || "user";
     const role = rawRole === "reader" ? "user" : rawRole;
     const isAdmin =
-      session.user.email === "admin@fable.com" || role === "admin";
+      user.email === "admin@fable.com" || role === "admin";
 
     if (pathname.startsWith("/dashboard/admin") && !isAdmin) {
       const dest = role === "writer" ? "/dashboard/writer" : "/dashboard/user";

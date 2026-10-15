@@ -53,15 +53,38 @@ export default function WriterDashboard() {
     cover: "",
   });
 
+  const [localUser, setLocalUser] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("fable-user");
+      if (stored) {
+        try {
+          setLocalUser(JSON.parse(stored));
+        } catch {}
+      }
+    }
+  }, []);
+
+  const activeUser = session?.user || localUser;
+
+  const getAuthHeaders = () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("fable-jwt") : "";
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+  };
+
   useEffect(() => {
     if (!isPending) {
-      if (!session?.user) {
+      if (!activeUser) {
         router.replace("/login");
         return;
       }
 
-      const role = session.user.role;
-      const isAdmin = session.user.email === "admin@fable.com" || role === "admin";
+      const role = activeUser.role;
+      const isAdmin = activeUser.email === "admin@fable.com" || role === "admin";
 
       if (role !== "writer" && !isAdmin) {
         myToast.error("Access Denied: Writer role required");
@@ -69,12 +92,12 @@ export default function WriterDashboard() {
         return;
       }
 
-      fetchWriterEbooksFromDB(session.user.email);
-      fetchWriterSalesFromDB(session.user.email);
-      fetchWriterBookmarksFromDB(session.user.email);
-      fetchWriterVerification(session.user.email);
+      fetchWriterEbooksFromDB(activeUser.email);
+      fetchWriterSalesFromDB(activeUser.email);
+      fetchWriterBookmarksFromDB(activeUser.email);
+      fetchWriterVerification(activeUser.email);
     }
-  }, [session, isPending, router]);
+  }, [activeUser, isPending, router]);
 
   const fetchWriterEbooksFromDB = async (email) => {
     try {
@@ -242,7 +265,7 @@ export default function WriterDashboard() {
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
       await fetch(`${serverUri}/api/ebooks/${id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ status: newStatus }),
       });
     } catch (err) {
@@ -258,7 +281,10 @@ export default function WriterDashboard() {
   const handleDeleteEbook = async (id) => {
     try {
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
-      await fetch(`${serverUri}/api/ebooks/${id}`, { method: "DELETE" });
+      await fetch(`${serverUri}/api/ebooks/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -309,15 +335,15 @@ export default function WriterDashboard() {
         genre: addForm.genre,
         cover: imageUrl,
         coverImage: imageUrl,
-        writerEmail: session?.user?.email,
-        writerName: session?.user?.name || "Fable Writer",
+        writerEmail: activeUser?.email,
+        writerName: activeUser?.name || "Fable Writer",
         status: "published",
       };
 
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
       const res = await fetch(`${serverUri}/api/ebooks`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify(newBook),
       });
       const data = await res.json();
@@ -369,7 +395,7 @@ export default function WriterDashboard() {
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
       await fetch(`${serverUri}/api/ebooks/${editingEbook.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify(updatedData),
       });
     } catch (err) {
@@ -387,7 +413,10 @@ export default function WriterDashboard() {
   const handleRemoveWriterBookmark = async (id) => {
     try {
       const serverUri = process.env.NEXT_PUBLIC_SERVER_URI || "http://localhost:8989";
-      await fetch(`${serverUri}/api/bookmarks/${id}`, { method: "DELETE" });
+      await fetch(`${serverUri}/api/bookmarks/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -407,7 +436,7 @@ export default function WriterDashboard() {
   return (
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] bg-[#eae2d5] px-4 sm:px-6 lg:px-10 py-4 lg:py-6 gap-5 lg:gap-6">
       <DashboardSidebar
-        user={session?.user}
+        user={activeUser}
         role="writer"
         activeTab={activeTab}
         setActiveTab={setActiveTab}
