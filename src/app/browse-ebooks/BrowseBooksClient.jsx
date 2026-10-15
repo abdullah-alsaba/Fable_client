@@ -78,14 +78,14 @@ export default function BrowseBooksClient({ serverData = {}, initialError = fals
   const endResult = Math.min(currentPage * limit, totalBooks);
 
   return (
-    <div className="min-h-screen bg-[#eae2d5] py-6 sm:py-10 px-4 sm:px-6 lg:px-12">
+    <div className="min-h-screen bg-[#eae2d5] dark:bg-[#0b1020] py-6 sm:py-10 px-4 sm:px-6 lg:px-12 transition-colors">
       <div className="mx-auto max-w-7xl space-y-8">
         
         <div className="space-y-4">
-          <h1 className="font-playfair text-3xl font-bold tracking-tight text-[#090e14] sm:text-4xl lg:text-5xl">
+          <h1 className="font-playfair text-3xl font-bold tracking-tight text-[#090e14] dark:text-[#f3f3f3] sm:text-4xl lg:text-5xl">
             Explore Ebooks
           </h1>
-          <p className="max-w-2xl text-xs sm:text-sm text-[#555555] leading-relaxed">
+          <p className="max-w-2xl text-xs sm:text-sm text-[#555555] dark:text-[#b5b5c4] leading-relaxed">
             Discover your next compelling read. Our curated collection spans
             genres, carefully selected for the discerning reader.
           </p>
@@ -95,11 +95,11 @@ export default function BrowseBooksClient({ serverData = {}, initialError = fals
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search by title, author, or keyword..."
-              className="w-full rounded-lg border border-[#e5e2dc] bg-white/80 px-4 py-2.5 text-xs sm:text-sm text-[#252525] placeholder:text-[#a09c95] focus:border-[#050d16] focus:bg-white focus:outline-none shadow-xs"
+              className="w-full rounded-lg border border-[#e5e2dc] dark:border-[#252d48] bg-white/80 dark:bg-[#141a2e] px-4 py-2.5 text-xs sm:text-sm text-[#252525] dark:text-[#f0f0f0] placeholder:text-[#a09c95] dark:placeholder:text-[#6b7280] focus:border-[#050d16] dark:focus:border-[#d4af37] focus:bg-white dark:focus:bg-[#161f36] focus:outline-none shadow-xs transition-colors"
             />
             <button
               type="submit"
-              className="rounded-lg bg-[#050d16] px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-[#182230] cursor-pointer"
+              className="rounded-lg bg-[#050d16] dark:bg-[#d4af37] px-4 py-2.5 text-xs font-semibold text-white dark:text-[#090e14] shadow-xs hover:bg-[#182230] dark:hover:bg-[#b8952b] cursor-pointer transition-colors"
             >
               Search
             </button>
@@ -107,7 +107,7 @@ export default function BrowseBooksClient({ serverData = {}, initialError = fals
               <button
                 type="button"
                 onClick={handleClearSearch}
-                className="text-xs font-semibold text-[#855210] hover:underline px-1 cursor-pointer shrink-0"
+                className="text-xs font-semibold text-[#855210] dark:text-[#d4af37] hover:underline px-1 cursor-pointer shrink-0"
               >
                 Clear
               </button>
@@ -124,22 +124,22 @@ export default function BrowseBooksClient({ serverData = {}, initialError = fals
           <div className="flex-1 space-y-5">
          
             {!initialError && (
-              <div className="flex items-center justify-between border-b border-[#e2d9cb] pb-3.5 text-xs text-[#77736d]">
-                <p className="font-sans text-xs text-[#77736d]">
+              <div className="flex items-center justify-between border-b border-[#e2d9cb] dark:border-[#252d48] pb-3.5 text-xs text-[#77736d] dark:text-[#a09c95]">
+                <p className="font-sans text-xs text-[#77736d] dark:text-[#a09c95]">
                   {`Showing ${startResult}-${endResult} of ${totalBooks} results`}
                 </p>
-                <div className="flex items-center gap-1.5 font-sans text-xs text-[#252525]">
-                  <span className="text-[#77736d]">Sort by:</span>
+                <div className="flex items-center gap-1.5 font-sans text-xs text-[#252525] dark:text-[#e0e0e0]">
+                  <span className="text-[#77736d] dark:text-[#a09c95]">Sort by:</span>
                   <div className="relative inline-flex items-center">
                     <select
                       value={currentParams.sortBy || "newest"}
                       onChange={handleSortChange}
-                      className="appearance-none bg-transparent pr-4 font-bold text-[#090e14] focus:outline-none cursor-pointer"
+                      className="appearance-none bg-transparent pr-4 font-bold text-[#090e14] dark:text-[#f3f3f3] focus:outline-none cursor-pointer"
                     >
-                      <option value="newest">Newest</option>
-                      <option value="price-low">Price: Low to High</option>
-                      <option value="price-high">Price: High to Low</option>
-                      <option value="title-az">Title: A to Z</option>
+                      <option value="newest" className="dark:bg-[#141a2e] dark:text-white">Newest</option>
+                      <option value="price-low" className="dark:bg-[#141a2e] dark:text-white">Price: Low to High</option>
+                      <option value="price-high" className="dark:bg-[#141a2e] dark:text-white">Price: High to Low</option>
+                      <option value="title-az" className="dark:bg-[#141a2e] dark:text-white">Title: A to Z</option>
                     </select>
                     <ChevronDownIcon />
                   </div>
@@ -211,12 +211,12 @@ export default function BrowseBooksClient({ serverData = {}, initialError = fals
                 </div>
 
                 {totalPages > 1 && (
-                  <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pt-6 border-t border-[#e2d9cb]">
+                  <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pt-6 border-t border-[#e2d9cb] dark:border-[#252d48]">
                     <button
                       type="button"
                       onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                       disabled={currentPage === 1}
-                      className="inline-flex h-9 items-center justify-center gap-1 rounded-lg border border-[#e5e2dc] bg-white px-3 text-xs font-semibold text-[#252525] shadow-xs hover:bg-[#f5f4f0] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                      className="inline-flex h-9 items-center justify-center gap-1 rounded-lg border border-[#e5e2dc] dark:border-[#252d48] bg-white dark:bg-[#141b2d] px-3 text-xs font-semibold text-[#252525] dark:text-[#e0e0e0] shadow-xs hover:bg-[#f5f4f0] dark:hover:bg-[#1e273f] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
                     >
                       <ChevronLeft size={14} />
                       Prev
@@ -229,8 +229,8 @@ export default function BrowseBooksClient({ serverData = {}, initialError = fals
                         onClick={() => handlePageChange(pg)}
                         className={`inline-flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold transition-all cursor-pointer ${
                           currentPage === pg
-                            ? "bg-[#050d16] text-white shadow-sm"
-                            : "bg-white border border-[#e5e2dc] text-[#252525] hover:bg-[#f5f4f0]"
+                            ? "bg-[#050d16] dark:bg-[#d4af37] text-white dark:text-[#090e14] shadow-sm"
+                            : "bg-white dark:bg-[#141b2d] border border-[#e5e2dc] dark:border-[#252d48] text-[#252525] dark:text-[#e0e0e0] hover:bg-[#f5f4f0] dark:hover:bg-[#1e273f]"
                         }`}
                       >
                         {pg}
@@ -241,7 +241,7 @@ export default function BrowseBooksClient({ serverData = {}, initialError = fals
                       type="button"
                       onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
                       disabled={currentPage === totalPages}
-                      className="inline-flex h-9 items-center justify-center gap-1 rounded-lg border border-[#e5e2dc] bg-white px-3 text-xs font-semibold text-[#252525] shadow-xs hover:bg-[#f5f4f0] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                      className="inline-flex h-9 items-center justify-center gap-1 rounded-lg border border-[#e5e2dc] dark:border-[#253252] bg-white dark:bg-[#141b2d] px-3 text-xs font-semibold text-[#252525] dark:text-[#e0e0e0] shadow-xs hover:bg-[#f5f4f0] dark:hover:bg-[#1e273f] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
                     >
                       Next
                       <ChevronRight size={14} />

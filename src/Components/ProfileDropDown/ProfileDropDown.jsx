@@ -66,10 +66,10 @@ export function ProfileDropdown({ user }) {
         )}
       </Dropdown.Trigger>
 
-      <Dropdown.Popover className="w-56 rounded-xl border border-[#e5e2dc] bg-white p-2 shadow-md">
-        <div className="flex items-center gap-2.5 px-2 py-2 border-b border-[#f0ece3] mb-1">
+      <Dropdown.Popover className="w-56 rounded-xl border border-[#e5e2dc] dark:border-[#253252] bg-white dark:bg-[#141b2d] p-2 shadow-xl">
+        <div className="flex items-center gap-2.5 px-2 py-2 border-b border-[#f0ece3] dark:border-[#202940] mb-1">
           {userImage ? (
-            <div className="h-8 w-8 shrink-0 rounded-full overflow-hidden border border-[#dbdad6]">
+            <div className="h-8 w-8 shrink-0 rounded-full overflow-hidden border border-[#dbdad6] dark:border-[#323b5c]">
               <img
                 src={userImage}
                 alt={user?.name || "User"}
@@ -78,55 +78,55 @@ export function ProfileDropdown({ user }) {
               />
             </div>
           ) : (
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#855210] font-sans text-xs font-bold text-white shadow-xs">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#855210] dark:bg-[#d4af37] font-sans text-xs font-bold text-white dark:text-[#090e14] shadow-xs">
               {nameInitial}
             </div>
           )}
           <div className="flex flex-col min-w-0">
-            <p className="truncate text-xs font-bold text-[#090e14]">
+            <p className="truncate text-xs font-bold text-[#090e14] dark:text-[#f3f3f3]">
               {user?.name || "User"}
             </p>
-            <p className="truncate text-[11px] text-[#77736d]">
+            <p className="truncate text-[11px] text-[#77736d] dark:text-[#a09c95]">
               {user?.email || ""}
             </p>
           </div>
         </div>
 
-        <div className="py-1 space-y-0.5 text-xs font-medium text-[#252525]">
+        <div className="py-1 space-y-0.5 text-xs font-medium text-[#252525] dark:text-[#dedede]">
           <Link
             href="/"
-            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 hover:bg-[#f6f4ee] transition-colors"
+            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 hover:bg-[#f6f4ee] dark:hover:bg-[#1a2238] hover:text-[#090e14] dark:hover:text-white transition-colors"
           >
-            <House className="size-4 text-[#77736d]" />
+            <House className="size-4 text-[#77736d] dark:text-[#a09c95]" />
             <span>Home</span>
           </Link>
 
           <Link
             href="/browse-ebooks"
-            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 hover:bg-[#f6f4ee] transition-colors"
+            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 hover:bg-[#f6f4ee] dark:hover:bg-[#1a2238] hover:text-[#090e14] dark:hover:text-white transition-colors"
           >
-            <BookOpen className="size-4 text-[#77736d]" />
+            <BookOpen className="size-4 text-[#77736d] dark:text-[#a09c95]" />
             <span>Browse Ebooks</span>
           </Link>
 
           <Link
             href={dashboardPath}
-            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 hover:bg-[#f6f4ee] transition-colors"
+            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 hover:bg-[#f6f4ee] dark:hover:bg-[#1a2238] hover:text-[#090e14] dark:hover:text-white transition-colors"
           >
-            <LayoutHeader className="size-4 text-[#77736d]" />
+            <LayoutHeader className="size-4 text-[#77736d] dark:text-[#a09c95]" />
             <span>Dashboard</span>
           </Link>
         </div>
 
-        <div className="my-1.5 h-px bg-[#f0ece3]" />
+        <div className="my-1.5 h-px bg-[#f0ece3] dark:bg-[#202940]" />
 
         <button
           type="button"
           onClick={handleSignOut}
-          className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+          className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
         >
           <span>Log Out</span>
-          <ArrowRightFromSquare className="size-4 text-red-500" />
+          <ArrowRightFromSquare className="size-4 text-red-500 dark:text-red-400" />
         </button>
       </Dropdown.Popover>
     </Dropdown>

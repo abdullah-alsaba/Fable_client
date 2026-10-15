@@ -67,27 +67,27 @@ export default function BrowseEbooksSidebar() {
     searchParams.has("writer");
 
   return (
-    <aside className="w-full shrink-0 space-y-6 md:w-56 lg:w-64 rounded-2xl border border-[#e5e2dc] bg-white/80 p-5 shadow-xs">
+    <aside className="w-full shrink-0 space-y-6 md:w-56 lg:w-64 rounded-2xl border border-[#e5e2dc] dark:border-[#252d48] bg-white/80 dark:bg-[#141a2e] p-5 shadow-xs transition-colors text-left">
       <div className="flex items-center justify-between">
-        <h2 className="font-playfair text-base font-bold text-[#090e14]">
+        <h2 className="font-playfair text-base font-bold text-[#090e14] dark:text-[#f3f3f3]">
           Filters
         </h2>
         {hasActiveFilters && (
           <button
             type="button"
             onClick={handleClearAll}
-            className="text-xs font-semibold text-[#855210] hover:underline cursor-pointer"
+            className="text-xs font-semibold text-[#855210] dark:text-[#d4af37] hover:underline cursor-pointer"
           >
             Clear All
           </button>
         )}
       </div>
 
-      <hr className="border-[#e5e2dc]" />
+      <hr className="border-[#e5e2dc] dark:border-[#202940]" />
 
       <div className="space-y-3">
-        <h3 className="font-playfair text-sm font-bold text-[#090e14]">Genre</h3>
-        <div className="space-y-2 text-xs font-medium text-[#252525]">
+        <h3 className="font-playfair text-sm font-bold text-[#090e14] dark:text-[#f3f3f3]">Genre</h3>
+        <div className="space-y-2 text-xs font-medium text-[#252525] dark:text-[#dedede]">
           {GENRES.map((item) => {
             const isSelected =
               currentGenre.toLowerCase() === item.label.toLowerCase() ||
@@ -97,16 +97,16 @@ export default function BrowseEbooksSidebar() {
             return (
               <label
                 key={item.id}
-                className="flex items-center gap-2.5 cursor-pointer hover:text-[#855210] transition-colors"
+                className="flex items-center gap-2.5 cursor-pointer hover:text-[#855210] dark:hover:text-[#d4af37] transition-colors"
               >
                 <input
                   type="radio"
                   name="genreFilter"
                   checked={isSelected}
                   onChange={() => updateParam("genre", item.id === "all" ? "" : item.label)}
-                  className="h-3.5 w-3.5 accent-[#050d16]"
+                  className="h-3.5 w-3.5 accent-[#855210] dark:accent-[#d4af37]"
                 />
-                <span className={isSelected ? "font-bold text-[#050d16]" : ""}>
+                <span className={isSelected ? "font-bold text-[#855210] dark:text-[#d4af37]" : ""}>
                   {item.label}
                 </span>
               </label>
@@ -115,10 +115,10 @@ export default function BrowseEbooksSidebar() {
         </div>
       </div>
 
-      <hr className="border-[#e5e2dc]" />
+      <hr className="border-[#e5e2dc] dark:border-[#202940]" />
 
       <div className="space-y-3">
-        <h3 className="font-playfair text-sm font-bold text-[#090e14]">
+        <h3 className="font-playfair text-sm font-bold text-[#090e14] dark:text-[#f3f3f3]">
           Price Range ($)
         </h3>
         <form onSubmit={handlePriceApply} className="space-y-2">
@@ -129,34 +129,34 @@ export default function BrowseEbooksSidebar() {
               min="0"
               value={minPriceInput}
               onChange={(e) => setMinPriceInput(e.target.value)}
-              className="w-full rounded-md border border-[#e5e2dc] bg-[#f9f8f6] px-3 py-1.5 text-xs text-[#252525] placeholder:text-[#a09c95] focus:border-[#050d16] focus:bg-white focus:outline-none"
+              className="w-full rounded-md border border-[#e5e2dc] dark:border-[#252d48] bg-[#f9f8f6] dark:bg-[#1d273f] px-3 py-1.5 text-xs text-[#252525] dark:text-[#f0f0f0] placeholder:text-[#a09c95] dark:placeholder:text-[#6b7280] focus:border-[#855210] dark:focus:border-[#d4af37] focus:bg-white dark:focus:bg-[#161f36] focus:outline-none transition-colors"
             />
-            <span className="text-xs text-[#77736d]">-</span>
+            <span className="text-xs text-[#77736d] dark:text-[#a09c95]">-</span>
             <input
               type="number"
               placeholder="Max"
               min="0"
               value={maxPriceInput}
               onChange={(e) => setMaxPriceInput(e.target.value)}
-              className="w-full rounded-md border border-[#e5e2dc] bg-[#f9f8f6] px-3 py-1.5 text-xs text-[#252525] placeholder:text-[#a09c95] focus:border-[#050d16] focus:bg-white focus:outline-none"
+              className="w-full rounded-md border border-[#e5e2dc] dark:border-[#252d48] bg-[#f9f8f6] dark:bg-[#1d273f] px-3 py-1.5 text-xs text-[#252525] dark:text-[#f0f0f0] placeholder:text-[#a09c95] dark:placeholder:text-[#6b7280] focus:border-[#855210] dark:focus:border-[#d4af37] focus:bg-white dark:focus:bg-[#161f36] focus:outline-none transition-colors"
             />
           </div>
           <button
             type="submit"
-            className="w-full rounded-md bg-[#050d16] py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#182230] cursor-pointer"
+            className="w-full rounded-md bg-[#050d16] dark:bg-[#d4af37] py-1.5 text-xs font-semibold text-white dark:text-[#090e14] shadow-xs hover:bg-[#182230] dark:hover:bg-[#b8952b] cursor-pointer transition-colors"
           >
             Apply Price
           </button>
         </form>
       </div>
 
-      <hr className="border-[#e5e2dc]" />
+      <hr className="border-[#e5e2dc] dark:border-[#202940]" />
 
       <div className="space-y-3">
-        <h3 className="font-playfair text-sm font-bold text-[#090e14]">
+        <h3 className="font-playfair text-sm font-bold text-[#090e14] dark:text-[#f3f3f3]">
           Availability
         </h3>
-        <div className="space-y-2 text-xs font-medium text-[#252525]">
+        <div className="space-y-2 text-xs font-medium text-[#252525] dark:text-[#dedede]">
           {[
             { value: "all", label: "All Items" },
             { value: "available", label: "Available / In Stock" },
@@ -164,7 +164,7 @@ export default function BrowseEbooksSidebar() {
           ].map((item) => (
             <label
               key={item.value}
-              className="flex items-center gap-2.5 cursor-pointer hover:text-[#855210] transition-colors"
+              className="flex items-center gap-2.5 cursor-pointer hover:text-[#855210] dark:hover:text-[#d4af37] transition-colors"
             >
               <input
                 type="radio"
@@ -172,9 +172,9 @@ export default function BrowseEbooksSidebar() {
                 value={item.value}
                 checked={currentAvailability === item.value}
                 onChange={() => updateParam("availability", item.value)}
-                className="h-3.5 w-3.5 accent-[#050d16]"
+                className="h-3.5 w-3.5 accent-[#855210] dark:accent-[#d4af37]"
               />
-              <span className={currentAvailability === item.value ? "font-bold text-[#050d16]" : ""}>
+              <span className={currentAvailability === item.value ? "font-bold text-[#855210] dark:text-[#d4af37]" : ""}>
                 {item.label}
               </span>
             </label>

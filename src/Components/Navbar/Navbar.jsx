@@ -68,15 +68,28 @@ const Navbar = () => {
   const userRole = activeUser?.email === "admin@fable.com" ? "admin" : rawRole === "reader" ? "user" : rawRole;
   const dashboardHref = activeUser ? `/dashboard/${userRole}` : "/dashboard";
 
-  const navLinks = [
+  const loggedOutLinks = [
+    { name: "Home", href: "/" },
+    { name: "Browse Ebooks", href: "/browse-ebooks" },
+    { name: "About Us", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
+
+  const loggedInLinks = [
     { name: "Home", href: "/" },
     { name: "Browse Ebooks", href: "/browse-ebooks" },
     { name: "Dashboard", href: dashboardHref },
+    { name: "Bookmarks", href: `${dashboardHref}?tab=bookmarks` },
+    { name: "Orders", href: `${dashboardHref}?tab=orders` },
+    { name: "Contact", href: "/contact" },
   ];
+
+  const navLinks = activeUser ? loggedInLinks : loggedOutLinks;
 
   const isActive = (href) => {
     if (href === "/") return pathname === "/";
-    return pathname.startsWith(href);
+    const [pathPart] = href.split("?");
+    return pathname === pathPart;
   };
 
   return (
