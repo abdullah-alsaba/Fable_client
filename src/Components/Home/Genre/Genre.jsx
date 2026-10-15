@@ -17,7 +17,7 @@ const genres = [
 
 const Genre = () => {
   return (
-    <div className="relative left-1/2 right-1/2 mx-[-50vw] mt-16 w-screen px-6 py-16">
+    <div className="mt-16 w-full py-12">
       <motion.h2
         initial={{ opacity: 0, y: 15 }}
         whileInView={{ opacity: 1, y: 0 }}

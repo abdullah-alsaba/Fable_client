@@ -6,7 +6,7 @@ const TopWriters = async () => {
   const topWriters = await getTopWritersData();
 
   return (
-    <div className="relative left-1/2 right-1/2 mx-[-50vw] mt-16 w-screen bg-[#f0e9dc] py-16">
+    <div className="mt-16 w-full rounded-3xl border border-[#e2d9cb] bg-[#f0e9dc] px-4 py-16 sm:px-8">
       <div className="text-center">
         <h2 className="font-playfair text-3xl font-bold text-[#252525]">
           Top Writers

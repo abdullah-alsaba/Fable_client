@@ -21,6 +21,14 @@ import {
   Search,
   TrendingUp,
 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
 
 export default function WriterDashboard() {
   const router = useRouter();
@@ -1049,6 +1057,45 @@ export default function WriterDashboard() {
                 <span className="font-playfair text-lg font-bold text-emerald-900">
                   ${totalSalesRevenue.toFixed(2)}
                 </span>
+              </div>
+            </div>
+
+            {/* Writer Royalty Bar Chart */}
+            <div className="mb-6 rounded-xl border border-[#e5e2dc] bg-[#fafaf8] p-4">
+              <p className="text-xs font-bold text-[#090e14] mb-1">
+                Recent Earnings Velocity
+              </p>
+              <div className="h-44 w-full pt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={
+                      salesHistory.length > 0
+                        ? salesHistory.slice(-6).map((s) => ({
+                            title: s.ebookTitle ? s.ebookTitle.slice(0, 10) + "..." : "Book",
+                            amount: s.amount,
+                          }))
+                        : [
+                            { title: "Nov", amount: 28.5 },
+                            { title: "Dec", amount: 42.0 },
+                            { title: "Jan", amount: 65.0 },
+                            { title: "Feb", amount: 89.5 },
+                            { title: "Mar", amount: 114.0 },
+                          ]
+                    }
+                  >
+                    <XAxis dataKey="title" stroke="#666666" fontSize={11} />
+                    <YAxis stroke="#666666" fontSize={11} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#050d16",
+                        color: "#ffffff",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Bar dataKey="amount" name="Earnings ($)" fill="#855210" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
