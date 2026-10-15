@@ -28,6 +28,7 @@ import {
 
 export default function UserDashboard() {
   const router = useRouter();
+  const { data: session, isPending } = useSession();
   const searchParams = useSearchParams();
   const tabParam = searchParams ? searchParams.get("tab") : null;
   const [activeTab, setActiveTab] = useState(
@@ -37,6 +38,19 @@ export default function UserDashboard() {
       ? "purchases"
       : "overview"
   );
+
+  useEffect(() => {
+    if (tabParam === "bookmarks") {
+      setActiveTab("bookmarks");
+    } else if (tabParam === "orders" || tabParam === "purchases") {
+      setActiveTab("purchases");
+    } else if (tabParam === "library" || tabParam === "purchased-gallery") {
+      setActiveTab("purchased-gallery");
+    } else if (tabParam === "profile") {
+      setActiveTab("profile");
+    }
+  }, [tabParam]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -352,7 +366,7 @@ export default function UserDashboard() {
                 <div>
                   <p className="text-xs font-semibold text-[#666666]">Total Spent</p>
                   <p className="mt-1 font-playfair text-2xl font-bold text-[#090e14]">
-                    ${purchaseHistory.reduce((sum, p) => sum + p.price, 0).toFixed(2)}
+                    ${purchaseHistory.reduce((sum, p) => sum + (parseFloat(p?.price) || 0), 0).toFixed(2)}
                   </p>
                 </div>
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
@@ -436,7 +450,7 @@ export default function UserDashboard() {
                         <p className="text-[11px] text-[#666666]">By {item.writer} • {item.purchaseDate}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs font-bold text-[#090e14]">${item.price.toFixed(2)}</p>
+                        <p className="text-xs font-bold text-[#090e14]">${(parseFloat(item?.price) || 0).toFixed(2)}</p>
                         <span className="inline-block text-[10px] text-emerald-700 font-semibold">{item.status}</span>
                       </div>
                     </div>
@@ -514,7 +528,7 @@ export default function UserDashboard() {
                           </td>
                           <td className="px-4 py-3.5 text-[#555555]">{item.writer}</td>
                           <td className="px-4 py-3.5 font-semibold text-[#090e14]">
-                            ${item.price.toFixed(2)}
+                            ${(parseFloat(item?.price) || 0).toFixed(2)}
                           </td>
                           <td className="px-4 py-3.5 text-[#666666]">
                             {item.purchaseDate}
@@ -753,7 +767,7 @@ export default function UserDashboard() {
                   <p className="mt-3 font-playfair text-2xl font-bold text-[#090e14]">
                     $
                     {purchaseHistory
-                      .reduce((sum, item) => sum + item.price, 0)
+                      .reduce((sum, item) => sum + (parseFloat(item?.price) || 0), 0)
                       .toFixed(2)}
                   </p>
                   <p className="mt-1 text-[11px] text-[#888888]">Spent on stories</p>
@@ -898,7 +912,7 @@ export default function UserDashboard() {
                         </h3>
                         <p className="text-xs text-[#666666]">By {book.writer}</p>
                         <p className="mt-2 font-bold text-[#090e14]">
-                          ${book.price.toFixed(2)}
+                          ${(parseFloat(book?.price) || 0).toFixed(2)}
                         </p>
                       </div>
 
